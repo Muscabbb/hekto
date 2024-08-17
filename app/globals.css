@@ -61,7 +61,7 @@
 
 @layer base {
   * {
-    @apply box-border;
+    @apply box-border p-0 m-0;
   }
 
   .header {
@@ -74,7 +74,7 @@
   .side-img {
     @apply hidden h-full object-cover md:block;
   }
-  .container {
+  .containers {
     @apply relative flex-1 overflow-y-auto px-[5%];
   }
   .sub-container {

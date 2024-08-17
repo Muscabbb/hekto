@@ -2,7 +2,6 @@ import type { Metadata } from "next";
 import { Josefin_Sans } from "next/font/google";
 import "./globals.css";
 import { cn } from "@/lib/utils";
-import { ThemeProvider } from "@/components/themeProvider";
 
 const fontSans = Josefin_Sans({
   subsets: ["latin"],

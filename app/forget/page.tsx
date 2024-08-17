@@ -11,7 +11,7 @@ const Forget = () => {
         width={1000}
         className="side-img max-w-[50%]"
       />
-      <section className="remove-scrollbar container my-auto">
+      <section className="remove-scrollbar containers my-auto">
         <div className="sub-container max-w-[496px]">
           <ForgetForm />
         </div>
