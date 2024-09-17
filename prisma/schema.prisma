@@ -11,7 +11,7 @@ datasource db {
 }
 
 model Product {
-  id                 String @id @default(cuid())
+  id                 String   @id @default(cuid())
   productName        String
   productDescription String
   category           String
@@ -19,5 +19,6 @@ model Product {
   originalPrice      Float
   discountedPrice    Float
   productImage       String
-  rating             Int    @default(1)
+  rating             Int      @default(1)
+  createdAt          DateTime @default(now())
 }
