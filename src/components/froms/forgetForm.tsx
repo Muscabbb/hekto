@@ -25,8 +25,21 @@ const ForgetForm = () => {
   ) => {
     setLoading(true);
     try {
-      console.log(values);
+      const response = await fetch("/api/auth/forgot-password", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ email: values.email }),
+      });
+      if (response.ok) {
+        // Redirect to OTP entry page with email as query param
+        window.location.href = `/otp?email=${encodeURIComponent(values.email)}`;
+      } else {
+        const data = await response.json();
+        alert(data.error || "Failed to send OTP. Try again.");
+      }
+      // eslint-disable-next-line @typescript-eslint/no-unused-vars
     } catch (error) {
+      alert("Failed to send OTP. Try again.");
     } finally {
       setLoading(false);
       form.reset();

@@ -9,10 +9,12 @@ import { useForm } from "react-hook-form";
 import { useState } from "react";
 import CustomButton from "../CustomButton";
 import { FieldType } from "@/types/formTypes";
-import { createUser } from "@/features/user/users";
+import axios from "axios";
+import { useRouter } from "next/navigation";
 
 const SignUpForm = () => {
   const [loading, setLoading] = useState(false);
+  const router = useRouter();
   const form = useForm<z.infer<typeof SignUpFormValidation>>({
     resolver: zodResolver(SignUpFormValidation),
     defaultValues: {
@@ -22,13 +24,16 @@ const SignUpForm = () => {
       gender: "MALE",
       location: "",
       password: "",
+      confirmPassword: "",
     },
   });
 
   const onSubmit = async (data: z.infer<typeof SignUpFormValidation>) => {
     setLoading(true);
     try {
-      await createUser(data);
+      const response = await axios.post("/api/auth/signup", data);
+      console.log(response);
+      router.push("/");
     } catch (error) {
       console.log(error);
     } finally {
@@ -85,6 +90,15 @@ const SignUpForm = () => {
               name="password"
               label="Password"
               placeholder="enter your password here"
+              fieldType={FieldType.PASSWORD}
+            />
+          </div>
+          <div className="md:col-span-2">
+            <CustomFormField
+              control={form.control}
+              name="confirmPassword"
+              label="Confirm Password"
+              placeholder="confirm your password"
               fieldType={FieldType.PASSWORD}
             />
           </div>

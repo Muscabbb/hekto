@@ -3,7 +3,7 @@ import Image from "next/image";
 
 const SignUp = () => {
   return (
-    <div className="relative h-screen w-full overflow-hidden">
+    <div className="relative h-full w-full overflow-hidden">
       {/* Background Image */}
       <div className="fixed inset-0 -z-10">
         <Image
@@ -14,10 +14,10 @@ const SignUp = () => {
           quality={100}
           priority
           style={{
-            width: '100%',
-            height: '100%',
-            objectFit: 'cover',
-            objectPosition: 'center'
+            width: "100%",
+            height: "100%",
+            objectFit: "cover",
+            objectPosition: "center",
           }}
         />
       </div>
