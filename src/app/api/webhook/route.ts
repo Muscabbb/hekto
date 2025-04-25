@@ -3,7 +3,6 @@ import { headers } from "next/headers";
 import { WebhookEvent } from "@clerk/nextjs/server";
 import { DeleteUser, InsertUser, updateUser } from "@/features/users/db/users";
 import { syncClerkUserMetadata } from "@/services/clerk";
-import { revalidateUserCache } from "@/features/users/db/cache";
 
 export async function POST(req: Request) {
   const SIGNING_SECRET = process.env.CLERK_WEBHOOK_SECRET;
@@ -70,11 +69,9 @@ export async function POST(req: Request) {
         return new Response("Error: No name found", { status: 400 });
       if (evt.type === "user.created") {
         const user = await InsertUser(data);
-        revalidateUserCache(user.id);
         await syncClerkUserMetadata(user);
       } else {
-        const user = await updateUser(data.clerkUserId, data);
-        revalidateUserCache(user.id);
+        await updateUser(data.clerkUserId, data);
       }
 
       break;
