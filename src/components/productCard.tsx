@@ -1,8 +1,6 @@
 import { Card, CardContent, CardFooter } from "./ui/card";
 import Image from "next/image";
-import { BsCart4 } from "react-icons/bs";
-import { CiHeart } from "react-icons/ci";
-import { LiaSearchPlusSolid } from "react-icons/lia";
+import { ShoppingCart, Heart, Search } from "lucide-react";
 
 type ProductCardType = {
   imgSrc: string;
@@ -31,13 +29,13 @@ const ProductCard = ({
         />
         <div className="hidden group-hover:flex flex-col gap-2 transition absolute bottom-4 left-4 primary-text">
           <span className="p-2 rounded-full hover:text-pink-500 hover:bg-slate-400 bg-opacity-25 text-xl">
-            <BsCart4 />
+            <ShoppingCart />
           </span>
           <span className="p-2 rounded-full hover:text-pink-500 hover:bg-slate-400 bg-opacity-25 text-xl">
-            <CiHeart />
+            <Heart />
           </span>
           <span className="p-2 rounded-full hover:text-pink-500 hover:bg-slate-400 bg-opacity-25 text-xl">
-            <LiaSearchPlusSolid />
+            <Search />
           </span>
         </div>
       </CardContent>
