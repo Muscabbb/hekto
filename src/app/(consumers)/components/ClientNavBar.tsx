@@ -7,7 +7,7 @@ import {
   UserButton,
 } from "@clerk/nextjs";
 import Link from "next/link";
-import { Menu, X } from "lucide-react";
+import { Menu, X, ShoppingCart } from "lucide-react";
 import AdminLink from "./AdminLink";
 
 const ClientNavBar = () => {
@@ -30,6 +30,13 @@ const ClientNavBar = () => {
               className="font-medium hover:text-pink-600 transition-colors"
             >
               Products
+            </Link>
+            <Link
+              href="/cart"
+              className="font-medium hover:text-pink-600 transition-colors flex items-center gap-1"
+            >
+              <ShoppingCart size={20} />
+              Cart
             </Link>
             <div className="size-10 ml-2">
               <UserButton
@@ -87,6 +94,13 @@ const ClientNavBar = () => {
               className="font-medium py-2 hover:text-pink-600 transition-colors"
             >
               Products
+            </Link>
+            <Link
+              href="/cart"
+              className="font-medium py-2 hover:text-pink-600 transition-colors flex items-center gap-2"
+            >
+              <ShoppingCart size={20} />
+              Cart
             </Link>
           </SignedIn>
           <SignedOut>

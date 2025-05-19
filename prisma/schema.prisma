@@ -23,6 +23,12 @@ enum Role {
   user
 }
 
+enum InteractionType {
+  view
+  add_to_cart
+  purchase
+}
+
 model User {
   id          String    @id @default(auto()) @map("_id") @db.ObjectId
   clerkUserId String    @unique
@@ -33,4 +39,16 @@ model User {
   createdAt   DateTime  @default(now())
   updatedAt   DateTime  @updatedAt
   deletedAt   DateTime?
+
+  interactions Interactions[]
+}
+
+model Interactions {
+  id              String          @id @default(auto()) @map("_id") @db.ObjectId
+  userId          String          @db.ObjectId
+  user            User            @relation(fields: [userId], references: [id])
+  productId       String          @db.ObjectId
+  interactionType InteractionType
+  createdAt       DateTime        @default(now())
+  updatedAt       DateTime        @updatedAt
 }
