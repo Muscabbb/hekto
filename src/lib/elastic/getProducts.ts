@@ -21,16 +21,5 @@ export async function getProducts(
       match_all: {},
     },
   });
-
-  return result.hits.hits.map((hit) => {
-    const source = hit._source;
-    const imageUrl = Array.isArray(source.image)
-      ? source.image[0]
-      : source.image;
-    return {
-      id: hit._id,
-      ...source,
-      imageUrl,
-    };
-  }) as Product[];
+  return [];
 }
