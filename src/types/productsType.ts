@@ -1,5 +1,6 @@
 export type ProductsType = {
   id: number;
+  price: number;
   articleType: string;
   baseColour: string;
   gender: string;

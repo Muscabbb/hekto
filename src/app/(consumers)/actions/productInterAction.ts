@@ -9,20 +9,12 @@ export default async function productInterAction(
 ) {
   const user = await prisma?.user.findUnique({
     where: {
-      id: userId,
-    },
-    include: {
-      interactions: true,
+      clerkUserId: userId,
     },
   });
-  if (!user) {
-    return {
-      error: "User not found",
-    };
-  }
   await prisma?.interactions.create({
     data: {
-      userId: userId,
+      userId: user?.id as string,
       productId: productId,
       interactionType: action,
     },

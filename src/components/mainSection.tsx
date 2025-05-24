@@ -25,10 +25,13 @@ const MainSection = () => {
       </section>
       <section className=" hidden md:flex md:w-[50%] justify-end">
         <Image
-          src={"/assets/imgs/sofa promotional header.svg"}
+          src={
+            "https://sutta7ix17.ufs.sh/f/m8ZBLSTuDwTHdRVUenWmg0hruiY87B3aslWCSOIPJ4XMbpGn"
+          }
           width={1000}
           height={1000}
-          alt="sofa"
+          alt="jack"
+          unoptimized={true}
           className="max-w-[490px]"
         />
       </section>

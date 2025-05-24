@@ -3,7 +3,6 @@ import FeaturedProducts from "@/components/mainFeatures";
 
 import MainSection from "@/components/mainSection";
 
-import Image from "next/image";
 import React from "react";
 
 export default async function Home() {
@@ -11,14 +10,7 @@ export default async function Home() {
 
   return (
     <>
-      <section className="bg-gray-100 py-4 h-[88vh] relative">
-        <Image
-          src={"/assets/imgs/lamp.png"}
-          width={1000}
-          height={1000}
-          alt="lamp"
-          className=" hidden md:block max-w-[400px] absolute top-0 -left-[40px] z-10 opacity-30"
-        />
+      <section className="bg-gray-100 py-4 h-[88vh]">
         <div className="container mx-auto mt-10 relative z-20">
           <MainSection />
         </div>

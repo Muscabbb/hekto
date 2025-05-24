@@ -10,7 +10,7 @@ import { z } from "zod";
 import { useProductContext } from "@/context/ProductContext";
 
 export default function SearchBar() {
-  const { setProducts } = useProductContext();
+  const { dispatch } = useProductContext();
   const form = useForm({
     resolver: zodResolver(SearchSchema),
     defaultValues: {
@@ -29,7 +29,7 @@ export default function SearchBar() {
       });
 
       const result = await response.json();
-      setProducts(result?.products); // Update the products state with the search results
+      dispatch({ type: "SET_PRODUCTS", payload: result.products }); // Update the products state with the search results
       console.log("Search result:", result);
     } catch (error) {
       console.error("Error posting search data:", error);
