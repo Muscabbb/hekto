@@ -17,7 +17,7 @@ type ProductAction =
   | { type: "SET_PRODUCTS"; payload: ProductsType[] }
   | { type: "SELECT_PRODUCT"; payload: ProductsType | null }
   | { type: "ADD_TO_CART"; payload: ProductsType }
-  | { type: "REMOVE_FROM_CART"; payload: string };
+  | { type: "REMOVE_FROM_CART"; payload: number };
 
 //
 // 2) Reducer: handles all state transitions in one place
@@ -53,9 +53,7 @@ function productReducer(
     case "REMOVE_FROM_CART":
       return {
         ...state,
-        cart: state.cart.filter(
-          (item) => item.id.toString() !== action.payload
-        ),
+        cart: state.cart.filter((item) => item.id !== action.payload),
       };
 
     default:

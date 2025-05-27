@@ -6,13 +6,23 @@ import Image from "next/image";
 import { useProductContext } from "@/context/ProductContext";
 import { Checkbox } from "@/components/ui/checkbox";
 import { useEffect, useState } from "react";
+import StripeCheckout from "@/components/StripeCheckout";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from "@/components/ui/dialog";
 
 const CartPage = () => {
   const {
     state: { cart },
+    dispatch,
   } = useProductContext();
   const [selectedItems, setSelectedItems] = useState<string[]>([]);
   const [selectAll, setSelectAll] = useState(false);
+  const [showCheckout, setShowCheckout] = useState(false);
 
   useEffect(() => {
     if (selectAll) {
@@ -41,6 +51,34 @@ const CartPage = () => {
     }, 0);
   };
 
+  const handleRemoveItem = (productId: number) => {
+    dispatch({
+      type: "REMOVE_FROM_CART",
+      payload: productId,
+    });
+    // Remove from selected items if it was selected
+    setSelectedItems((prev) =>
+      prev.filter((id) => id !== productId.toString())
+    );
+  };
+
+  const handlePaymentSuccess = () => {
+    // Clear selected items from cart
+    selectedItems.forEach((itemId) => {
+      dispatch({
+        type: "REMOVE_FROM_CART",
+        payload: parseInt(itemId),
+      });
+    });
+
+    setSelectedItems([]);
+    setSelectAll(false);
+    setShowCheckout(false);
+
+    // Show success message
+    alert("Payment successful! Thank you for your purchase.");
+  };
+
   const subtotal = calculateSubtotal();
 
   return (
@@ -63,11 +101,10 @@ const CartPage = () => {
             </label>
           </div>
 
-          {/* Vendor Section - Assuming all items are from the same vendor for now */}
+          {/* Vendor Section */}
           {cart.length > 0 && (
             <div className="border rounded-md p-4 mb-6">
               <div className="flex items-center mb-4">
-                {/* Vendor checkbox can be linked to select all or individual items */}
                 <Checkbox
                   id="vendor-select"
                   className="mr-2"
@@ -96,7 +133,7 @@ const CartPage = () => {
                     }
                   />
                   <Image
-                    src={item.image} // Use actual image URL from product data
+                    src={item.image}
                     alt={item.productDisplayName}
                     width={80}
                     height={80}
@@ -105,20 +142,11 @@ const CartPage = () => {
                   />
                   <div className="flex-grow">
                     <h3 className="font-medium">{item.productDisplayName}</h3>
-                    {/* Placeholder delivery and min order info */}
                     <p className="text-sm text-gray-500">Delivery by Jun 30</p>
                     <p className="text-sm text-gray-500">
                       Min. order: 1000 pieces
                     </p>
                     <div className="flex items-center mt-2">
-                      {/* Assuming no separate spec image for now */}
-                      {/* <Image
-                        src="/actual/spec/image/url" // Use actual specification image URL if available
-                        alt="Specification Image"
-                        width={30}
-                        height={30}
-                        className="rounded-sm mr-2"
-                      /> */}
                       <span className="text-sm text-gray-700">
                         No specification
                       </span>
@@ -128,7 +156,12 @@ const CartPage = () => {
                       <span className="font-bold ml-auto">
                         ${(item.price * 1).toFixed(2)}
                       </span>
-                      <Button variant="ghost" size="icon" className="ml-4">
+                      <Button
+                        variant="ghost"
+                        size="icon"
+                        className="ml-4"
+                        onClick={() => handleRemoveItem(item.id)}
+                      >
                         <Trash2 size={20} />
                       </Button>
                     </div>
@@ -149,19 +182,41 @@ const CartPage = () => {
           </h2>
           <div className="flex justify-between mb-2">
             <span>Item subtotal</span>
-            <span>{subtotal.toFixed(2)}</span>
+            <span>${subtotal.toFixed(2)}</span>
           </div>
           <div className="flex justify-between mb-4">
             <span>Subtotal excl. tax</span>
-            <span>{subtotal.toFixed(2)}</span>
+            <span>${subtotal.toFixed(2)}</span>
           </div>
-          <Button className="w-full bg-pink-600 text-white hover:bg-pink-700 transition-colors">
-            <Trash2 size={16} className="mr-2" />
-            Check out
-          </Button>
+
+          <Dialog open={showCheckout} onOpenChange={setShowCheckout}>
+            <DialogTrigger asChild>
+              <Button
+                className="w-full bg-pink-600 text-white hover:bg-pink-700 transition-colors"
+                disabled={selectedItems.length === 0}
+              >
+                Check out (${subtotal.toFixed(2)})
+              </Button>
+            </DialogTrigger>
+            <DialogContent className="sm:max-w-md">
+              <DialogHeader>
+                <DialogTitle>Complete Your Payment</DialogTitle>
+              </DialogHeader>
+              <div className="space-y-4">
+                <div className="text-sm text-gray-600">
+                  Total: ${subtotal.toFixed(2)}
+                </div>
+                <StripeCheckout
+                  amount={subtotal}
+                  onSuccess={handlePaymentSuccess}
+                />
+              </div>
+            </DialogContent>
+          </Dialog>
+
           <div className="mt-6 text-sm text-gray-500">
             <p className="flex items-center mb-2">
-              <span className="mr-2">✔</span> {"you're "}protected on Hekt
+              <span className="mr-2">✔</span> {`You're`} protected on Hekt
             </p>
             <p className="flex items-center mb-2">
               <span className="mr-2">✔</span> Secure payment VISA Mastercard
