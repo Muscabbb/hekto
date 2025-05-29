@@ -1,104 +1,84 @@
 "use client";
-
-import Link from "next/link";
-import { useEffect, useState } from "react";
-import { ProductsType } from "@/types/productsType";
-import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import React, { useState, useEffect } from "react";
 import Image from "next/image";
 
+import {
+  Carousel,
+  CarouselContent,
+  CarouselItem,
+  CarouselNext,
+  CarouselPrevious,
+} from "./ui/carousel";
+import { Card, CardContent } from "./ui/card";
+
+import Link from "next/link";
+import { ProductsType } from "@/types/productsType";
+
 export default function LatestProducts() {
-  const [categories, setCategories] = useState<string[]>([]);
-  const [allProducts, setAllProducts] = useState<ProductsType[]>([]);
-  const [filteredProducts, setFilteredProducts] = useState<ProductsType[]>([]);
+  const [products, setProducts] = useState<ProductsType[]>([]);
 
   useEffect(() => {
     const fetchProducts = async () => {
       try {
-        const response = await fetch("http://127.0.0.1:8000/getAll");
+        const response = await fetch("http://127.0.0.1:8000/latest-products");
         if (!response.ok) {
           throw new Error(`HTTP error! status: ${response.status}`);
         }
-
         const data = await response.json();
-        const all: ProductsType[] = data.products;
-
-        setAllProducts(all);
-        setFilteredProducts(all);
-
-        const uniqueCategories = [
-          ...new Set(
-            all.filter((p) => p.masterCategory).map((p) => p.masterCategory)
-          ),
-        ];
-
-        setCategories(uniqueCategories);
+        // Assuming the API response has a 'products' key containing an array
+        setProducts(data.products);
       } catch (error) {
         console.error("Error fetching products:", error);
+        // Optionally set an error state or display a message
       }
     };
 
     fetchProducts();
-  }, []);
-
-  const handleCategoryClick = (category: string) => {
-    if (category === "All") {
-      setFilteredProducts(allProducts);
-    } else {
-      const filtered = allProducts.filter(
-        (product) => product.masterCategory === category
-      );
-      setFilteredProducts(filtered);
-    }
-  };
+  }, []); // Empty dependency array means this effect runs once on mount
 
   return (
-    <div className="p-4">
-      <h1 className="text-3xl text-center font-bold mb-6">
-        Product Categories
-      </h1>
-
-      {/* Category Buttons */}
-      <div className="container flex flex-wrap gap-2 mb-8 mx-auto">
-        <Button onClick={() => handleCategoryClick("All")}>All</Button>
-        {categories.map((category) => (
-          <Button
-            key={category}
-            onClick={() => handleCategoryClick(category)}
-            variant="outline"
-          >
-            {category}
-          </Button>
-        ))}
-      </div>
-
-      {/* Product Cards */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-        {filteredProducts.map((product) => (
-          <Link key={product.id} href={`/products/${product.id}`}>
-            <Card className="cursor-pointer hover:shadow-lg transition-shadow">
-              <CardHeader>
-                <CardTitle className="text-lg line-clamp-1">
-                  {product.productDisplayName}
-                </CardTitle>
-              </CardHeader>
-              <CardContent>
-                <Image
-                  src={product.image}
-                  alt={product.productDisplayName}
-                  width={300}
-                  height={300}
-                  className="w-full h-[300px] object-cover rounded-md"
-                  unoptimized
-                />
-                <p className="mt-4 text-lg font-semibold">
-                  ${product.price.toFixed(2)}
-                </p>
-              </CardContent>
-            </Card>
-          </Link>
-        ))}
-      </div>
+    <div className="container mx-auto py-8 overflow-hidden mt-7">
+      <h2 className="text-4xl font-bold text-center mb-6 primary-text">
+        Latest Products
+      </h2>
+      <Carousel opts={{ loop: true }} className="max-w-full mx-auto">
+        <CarouselContent className="flex gap-5 rounded-none">
+          {products.map((slide) => (
+            <CarouselItem
+              key={slide.id} // Use product id as key for better performance
+              className="flex-shrink-0 pl-1 md:basis-1/2 lg:basis-1/3 group relative"
+            >
+              <Link href={`/products/${slide.id}`}>
+                <Card className="bg-white shadow-lg group-hover:bg-blue-700 h-[350px] max-h-[350px] flex flex-col justify-between items-center">
+                  <Image
+                    src={slide.image} // Use product image
+                    alt={slide.productDisplayName} // Use product display name for alt text
+                    width={200}
+                    height={200}
+                    quality={80}
+                    className="mx-auto max-h-[200px] object-contain pt-2"
+                    unoptimized={true} // Added unoptimized for external images if not configured in next.config.js
+                  />
+                  <CardContent className="p-4 relative w-full">
+                    <h3 className="text-lg font-semibold text-center group-hover:text-white truncate">
+                      {slide.productDisplayName}{" "}
+                      {/* Use product display name for title */}
+                    </h3>
+                    {/* <p className="text-center text-gray-500 group-hover:text-white">
+                        Code: {slide.code} // Assuming 'code' is not part of ProductsType based on user input
+                      </p> */}
+                    <p className="text-center text-blue-500 font-bold mt-2 group-hover:text-white">
+                      ${slide.price.toFixed(2)} {/* Display price */}
+                    </p>
+                  </CardContent>
+                </Card>
+              </Link>
+            </CarouselItem>
+          ))}
+        </CarouselContent>
+        <CarouselPrevious />
+        <CarouselNext />
+      </Carousel>
     </div>
   );
 }

@@ -1,37 +1,77 @@
-import Image from "next/image"; // Import Image component
-import { Button } from "@/components/ui/button"; // Import Button component
+"use client";
+
+import Image from "next/image";
+import { Button } from "@/components/ui/button";
+import { useProductContext } from "@/context/ProductContext";
+import { use, useEffect, useState } from "react";
+import { ProductsType } from "@/types/productsType";
+import { toast } from "sonner";
 
 interface ProductDetailsPageProps {
-  params: {
-    id: string[];
-  };
+  params: Promise<{ id: string }>;
 }
 
-export default async function ProductDetails({
-  params,
-}: ProductDetailsPageProps) {
-  const productId = params.id?.[0] ?? null;
+export default function ProductDetails({ params }: ProductDetailsPageProps) {
+  const { id } = use(params);
+  const [product, setProduct] = useState<ProductsType | null>(null);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+  const { state, dispatch } = useProductContext();
 
-  if (!productId) {
-    return <div>No Product ID found</div>;
+  useEffect(() => {
+    if (!id) {
+      setError("No Product ID found");
+      setLoading(false);
+      return;
+    }
+
+    // Fetch product details from API
+    const fetchProduct = async () => {
+      try {
+        const response = await fetch(`http://localhost:8000/getbyId/${id}`);
+        if (!response.ok) {
+          throw new Error(`HTTP error! status: ${response.status}`);
+        }
+        const data = await response.json();
+        setProduct(data.product);
+      } catch (error) {
+        console.error("Failed to fetch product details:", error);
+        setError("Error fetching product details.");
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchProduct();
+  }, [id]);
+
+  const handleAddToCart = () => {
+    if (product) {
+      dispatch({
+        type: "ADD_TO_CART",
+        payload: product,
+      });
+      // Show success toast
+      toast.success("Product added to cart successfully!", {
+        description: `${product.productDisplayName} has been added to your cart.`,
+      });
+    }
+  };
+
+  const isInCart = product
+    ? state.cart.some((item) => item.id === product.id)
+    : false;
+
+  if (loading) {
+    return <div className="container mx-auto px-4 py-8">Loading...</div>;
   }
 
-  // Fetch product details from API
-  let product = null;
-  try {
-    const response = await fetch(`http://localhost:8000/getbyId/${productId}`);
-    if (!response.ok) {
-      throw new Error(`HTTP error! status: ${response.status}`);
-    }
-    const data = await response.json();
-    product = data.product;
-  } catch (error) {
-    console.error("Failed to fetch product details:", error);
-    return <div>Error fetching product details.</div>;
+  if (error) {
+    return <div className="container mx-auto px-4 py-8">{error}</div>;
   }
 
   if (!product) {
-    return <div>Product not found</div>;
+    return <div className="container mx-auto px-4 py-8">Product not found</div>;
   }
 
   return (
@@ -93,8 +133,13 @@ export default async function ProductDetails({
 
             {/* Add to Cart Button */}
             <div className="flex items-center gap-4">
-              <Button className="flex-1" size="lg">
-                Add to Cart
+              <Button
+                className="flex-1"
+                size="lg"
+                onClick={handleAddToCart}
+                disabled={isInCart}
+              >
+                {isInCart ? "Already in Cart" : "Add to Cart"}
               </Button>
             </div>
           </div>

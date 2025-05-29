@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
 import { ClerkProvider } from "@clerk/nextjs";
+import { Toaster } from "sonner";
 
 import "./globals.css";
 import { ProductProvider } from "@/context/ProductContext";
@@ -32,6 +33,7 @@ export default function RootLayout({
           className={`${geistSans.variable} ${geistMono.variable} font-sans min-h-screen antialiased`}
         >
           <ProductProvider>{children}</ProductProvider>
+          <Toaster position="bottom-right" richColors />
         </body>
       </html>
     </ClerkProvider>

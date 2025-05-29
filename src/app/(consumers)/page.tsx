@@ -1,6 +1,6 @@
-import LatestProducts from "@/components/latestProducts";
-import FeaturedProducts from "@/components/mainFeatures";
-
+import LatestProducts from "@/components/mainFeatures";
+import FeaturedProducts from "@/components/latestProducts";
+import Footer from "@/components/Footer";
 import MainSection from "@/components/mainSection";
 
 import React from "react";
@@ -19,6 +19,7 @@ export default async function Home() {
         <FeaturedProducts />
         <LatestProducts />
       </section>
+      <Footer />
     </>
   );
 }

@@ -6,11 +6,12 @@ import { ShoppingCart } from "lucide-react";
 import productInterAction from "../actions/productInterAction";
 import { ProductsType } from "@/types/productsType";
 import { useUser } from "@clerk/nextjs";
+import { toast } from "sonner";
 
 export default function ProductCard() {
   const { user } = useUser();
   const {
-    state: { products },
+    state: { products, cart },
     dispatch,
   } = useProductContext();
   if (products.length === 0) {
@@ -65,15 +66,47 @@ export default function ProductCard() {
                 )}
                 <div className="absolute bottom-2 right-2 opacity-0 group-hover:opacity-100 transition-opacity">
                   <button
-                    className="p-2 rounded-full bg-white shadow-md cursor-pointer"
+                    className={`p-2 rounded-full shadow-md cursor-pointer transition-colors ${
+                      cart.some((item) => item.id === product.id)
+                        ? "bg-green-500 text-white"
+                        : "bg-white text-gray-700 hover:bg-gray-50"
+                    }`}
                     onClick={(e) => {
                       e.preventDefault(); // Prevent navigating to product
                       e.stopPropagation(); // Prevent event bubbling to the parent card
-                      dispatch({ type: "ADD_TO_CART", payload: product });
-                      handleCartSubmit(product, "add_to_cart");
+
+                      if (!cart.some((item) => item.id === product.id)) {
+                        dispatch({ type: "ADD_TO_CART", payload: product });
+                        handleCartSubmit(product, "add_to_cart");
+
+                        // Show success toast
+                        toast.success("Added to cart!", {
+                          description: `${product.productDisplayName} has been added to your cart.`,
+                        });
+                      }
                     }}
+                    disabled={cart.some((item) => item.id === product.id)}
+                    title={
+                      cart.some((item) => item.id === product.id)
+                        ? "Already in cart"
+                        : "Add to cart"
+                    }
                   >
-                    <ShoppingCart className="w-5 h-5 text-gray-700" />
+                    {cart.some((item) => item.id === product.id) ? (
+                      <svg
+                        className="w-5 h-5"
+                        fill="currentColor"
+                        viewBox="0 0 20 20"
+                      >
+                        <path
+                          fillRule="evenodd"
+                          d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z"
+                          clipRule="evenodd"
+                        />
+                      </svg>
+                    ) : (
+                      <ShoppingCart className="w-5 h-5" />
+                    )}
                   </button>
                 </div>
               </CardContent>

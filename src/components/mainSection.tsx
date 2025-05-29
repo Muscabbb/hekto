@@ -28,11 +28,11 @@ const MainSection = () => {
           src={
             "https://sutta7ix17.ufs.sh/f/m8ZBLSTuDwTHdRVUenWmg0hruiY87B3aslWCSOIPJ4XMbpGn"
           }
-          width={1000}
-          height={1000}
+          width={500}
+          height={500}
           alt="jack"
           unoptimized={true}
-          className="max-w-[490px]"
+          className="max-w-[490px] max-h-[490px]"
         />
       </section>
     </section>

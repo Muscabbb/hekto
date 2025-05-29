@@ -9,7 +9,8 @@ import {
   useElements,
 } from "@stripe/react-stripe-js";
 import { Button } from "@/components/ui/button";
-// import { useProductContext } from "@/context/ProductContext";
+import { useProductContext } from "@/context/ProductContext";
+import { toast } from "sonner";
 
 const stripePromise = loadStripe(
   process.env.NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY!
@@ -17,10 +18,16 @@ const stripePromise = loadStripe(
 
 interface CheckoutFormProps {
   amount: number;
+  selectedItems: string[];
   onSuccess: () => void;
 }
 
-const CheckoutForm = ({ amount, onSuccess }: CheckoutFormProps) => {
+const CheckoutForm = ({
+  amount,
+  selectedItems,
+  onSuccess,
+}: CheckoutFormProps) => {
+  const { state } = useProductContext();
   const stripe = useStripe();
   const elements = useElements();
   const [isLoading, setIsLoading] = useState(false);
@@ -37,13 +44,22 @@ const CheckoutForm = ({ amount, onSuccess }: CheckoutFormProps) => {
     setError(null);
 
     try {
+      // Get selected products
+      const selectedProducts = state.cart.filter((item) =>
+        selectedItems.includes(item.id.toString())
+      );
+
       // Create payment intent (amount in cents)
       const response = await fetch("/api/create-payment-intent", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
         },
-        body: JSON.stringify({ amount: Math.round(amount * 100) }),
+        body: JSON.stringify({
+          amount: Math.round(amount * 100),
+          productIds: selectedProducts.map((p) => p.id.toString()),
+          products: selectedProducts,
+        }),
       });
 
       const { clientSecret } = await response.json();
@@ -60,12 +76,18 @@ const CheckoutForm = ({ amount, onSuccess }: CheckoutFormProps) => {
 
       if (paymentError) {
         setError(paymentError.message || "Payment failed");
+        toast.error("Payment failed", {
+          description: paymentError.message || "Please try again.",
+        });
       } else {
         onSuccess();
       }
       // eslint-disable-next-line @typescript-eslint/no-unused-vars
     } catch (err) {
       setError("Payment failed. Please try again.");
+      toast.error("Payment failed", {
+        description: "Please try again.",
+      });
     } finally {
       setIsLoading(false);
     }
@@ -104,13 +126,22 @@ const CheckoutForm = ({ amount, onSuccess }: CheckoutFormProps) => {
 
 interface StripeCheckoutProps {
   amount: number;
+  selectedItems: string[];
   onSuccess: () => void;
 }
 
-const StripeCheckout = ({ amount, onSuccess }: StripeCheckoutProps) => {
+const StripeCheckout = ({
+  amount,
+  selectedItems,
+  onSuccess,
+}: StripeCheckoutProps) => {
   return (
     <Elements stripe={stripePromise}>
-      <CheckoutForm amount={amount} onSuccess={onSuccess} />
+      <CheckoutForm
+        amount={amount}
+        selectedItems={selectedItems}
+        onSuccess={onSuccess}
+      />
     </Elements>
   );
 };

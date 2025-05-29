@@ -14,6 +14,7 @@ import {
   DialogTitle,
   DialogTrigger,
 } from "@/components/ui/dialog";
+import { toast } from "sonner";
 
 const CartPage = () => {
   const {
@@ -52,6 +53,7 @@ const CartPage = () => {
   };
 
   const handleRemoveItem = (productId: number) => {
+    const product = cart.find((item) => item.id === productId);
     dispatch({
       type: "REMOVE_FROM_CART",
       payload: productId,
@@ -60,6 +62,13 @@ const CartPage = () => {
     setSelectedItems((prev) =>
       prev.filter((id) => id !== productId.toString())
     );
+
+    // Show removal toast
+    if (product) {
+      toast.success("Item removed from cart", {
+        description: `${product.productDisplayName} has been removed from your cart.`,
+      });
+    }
   };
 
   const handlePaymentSuccess = () => {
@@ -75,8 +84,12 @@ const CartPage = () => {
     setSelectAll(false);
     setShowCheckout(false);
 
-    // Show success message
-    alert("Payment successful! Thank you for your purchase.");
+    // Show success toast
+    toast.success("Payment successful!", {
+      description:
+        "Thank you for your purchase. Your order has been processed.",
+      duration: 5000,
+    });
   };
 
   const subtotal = calculateSubtotal();
@@ -104,20 +117,6 @@ const CartPage = () => {
           {/* Vendor Section */}
           {cart.length > 0 && (
             <div className="border rounded-md p-4 mb-6">
-              <div className="flex items-center mb-4">
-                <Checkbox
-                  id="vendor-select"
-                  className="mr-2"
-                  checked={selectAll}
-                  onCheckedChange={(checked) =>
-                    handleSelectAll(checked as boolean)
-                  }
-                />
-                <label htmlFor="vendor-select" className="font-semibold">
-                  Ningbo Zhenhai Gaoxin Punching Spares Factory
-                </label>
-              </div>
-
               {/* Items */}
               {cart.map((item) => (
                 <div
@@ -208,6 +207,7 @@ const CartPage = () => {
                 </div>
                 <StripeCheckout
                   amount={subtotal}
+                  selectedItems={selectedItems}
                   onSuccess={handlePaymentSuccess}
                 />
               </div>

@@ -1,7 +1,13 @@
 "use client";
 
 import { ProductsType } from "@/types/productsType";
-import React, { createContext, useContext, ReactNode, useReducer } from "react";
+import React, {
+  createContext,
+  useContext,
+  ReactNode,
+  useReducer,
+  useEffect,
+} from "react";
 
 //
 // 1) Define state + action types
@@ -17,33 +23,70 @@ type ProductAction =
   | { type: "SET_PRODUCTS"; payload: ProductsType[] }
   | { type: "SELECT_PRODUCT"; payload: ProductsType | null }
   | { type: "ADD_TO_CART"; payload: ProductsType }
-  | { type: "REMOVE_FROM_CART"; payload: number };
+  | { type: "REMOVE_FROM_CART"; payload: number }
+  | { type: "LOAD_FROM_STORAGE"; payload: ProductState };
 
 //
 // 2) Reducer: handles all state transitions in one place
 //
 
+// Helper functions for localStorage
+const saveToLocalStorage = (
+  key: string,
+  data: ProductsType[] | ProductsType
+) => {
+  if (typeof window !== "undefined") {
+    try {
+      localStorage.setItem(key, JSON.stringify(data));
+    } catch (error) {
+      console.error("Error saving to localStorage:", error);
+    }
+  }
+};
+
+const loadFromLocalStorage = (key: string) => {
+  if (typeof window !== "undefined") {
+    try {
+      const item = localStorage.getItem(key);
+      return item ? JSON.parse(item) : null;
+    } catch (error) {
+      console.error("Error loading from localStorage:", error);
+      return null;
+    }
+  }
+  return null;
+};
+
 function productReducer(
   state: ProductState,
   action: ProductAction
 ): ProductState {
-  console.log("ss");
+  let newState: ProductState;
 
   switch (action.type) {
     case "SET_PRODUCTS":
-      return { ...state, products: action.payload };
+      newState = { ...state, products: action.payload };
+      saveToLocalStorage("hekto_products", action.payload);
+      return newState;
 
     case "SELECT_PRODUCT":
-      return { ...state, selectedProduct: action.payload };
+      newState = { ...state, selectedProduct: action.payload };
+      saveToLocalStorage(
+        "hekto_selected_product",
+        action.payload as ProductsType
+      );
+      return newState;
 
     case "ADD_TO_CART":
-      console.log("cart");
       if (!state.cart.find((item) => item.id === action.payload.id)) {
         // Item not found, add it
-        return {
+        const newCart = [...state.cart, action.payload];
+        newState = {
           ...state,
-          cart: [...state.cart, action.payload],
+          cart: newCart,
         };
+        saveToLocalStorage("hekto_cart", newCart);
+        return newState;
       } else {
         // Item found, return current state without modification
         console.log("Item already in cart, not adding again.");
@@ -51,10 +94,18 @@ function productReducer(
       }
 
     case "REMOVE_FROM_CART":
-      return {
+      const filteredCart = state.cart.filter(
+        (item) => item.id !== action.payload
+      );
+      newState = {
         ...state,
-        cart: state.cart.filter((item) => item.id !== action.payload),
+        cart: filteredCart,
       };
+      saveToLocalStorage("hekto_cart", filteredCart);
+      return newState;
+
+    case "LOAD_FROM_STORAGE":
+      return action.payload;
 
     default:
       return state;
@@ -89,6 +140,22 @@ const ProductContext = createContext<ProductContextType>({
 
 export function ProductProvider({ children }: { children: ReactNode }) {
   const [state, dispatch] = useReducer(productReducer, initialState);
+
+  // Load data from localStorage on mount
+  useEffect(() => {
+    const savedProducts = loadFromLocalStorage("hekto_products") || [];
+    const savedSelectedProduct =
+      loadFromLocalStorage("hekto_selected_product") || null;
+    const savedCart = loadFromLocalStorage("hekto_cart") || [];
+
+    const savedState: ProductState = {
+      products: savedProducts,
+      selectedProduct: savedSelectedProduct,
+      cart: savedCart,
+    };
+
+    dispatch({ type: "LOAD_FROM_STORAGE", payload: savedState });
+  }, []);
 
   return (
     <ProductContext.Provider value={{ state, dispatch }}>

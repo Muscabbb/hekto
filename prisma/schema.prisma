@@ -29,6 +29,13 @@ enum InteractionType {
   purchase
 }
 
+enum PaymentStatus {
+  CANCELED
+  COMPLETED
+  FAILED
+  PENDING
+}
+
 model User {
   id          String    @id @default(auto()) @map("_id") @db.ObjectId
   clerkUserId String    @unique
@@ -41,6 +48,7 @@ model User {
   deletedAt   DateTime?
 
   interactions Interactions[]
+  payments     Payment[]
 }
 
 model Interactions {
@@ -51,4 +59,22 @@ model Interactions {
   interactionType InteractionType
   createdAt       DateTime        @default(now())
   updatedAt       DateTime        @updatedAt
+}
+
+model Payment {
+  id              String        @id @default(auto()) @map("_id") @db.ObjectId
+  userId          String        @db.ObjectId
+  user            User          @relation(fields: [userId], references: [id])
+  stripePaymentId String        @unique // Stripe payment intent ID
+  amount          Float // Amount in dollars
+  currency        String        @default("usd")
+  status          PaymentStatus @default(PENDING)
+  productIds      String[] // Array of product IDs purchased
+  customerEmail   String?
+  customerName    String?
+  shippingAddress Json? // Store shipping address as JSON
+  billingAddress  Json? // Store billing address as JSON
+  metadata        Json? // Additional payment metadata
+  createdAt       DateTime      @default(now())
+  updatedAt       DateTime      @updatedAt
 }
