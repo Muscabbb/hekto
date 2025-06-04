@@ -1,5 +1,4 @@
 import { Prisma } from "@prisma/client";
-
 import { prisma } from "@/lib/prisma";
 
 export async function InsertUser(userData: Prisma.UserCreateInput) {
@@ -8,6 +7,7 @@ export async function InsertUser(userData: Prisma.UserCreateInput) {
       clerkUserId: userData.clerkUserId,
     },
   });
+
   if (user) {
     return await prisma.user.update({
       where: {
@@ -50,6 +50,7 @@ export async function updateUser(
       data: userData as Prisma.UserCreateInput,
     });
   }
+
   const updatedUser = await prisma.user.update({
     where: {
       clerkUserId,
