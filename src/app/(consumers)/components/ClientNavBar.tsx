@@ -32,6 +32,12 @@ const ClientNavBar = () => {
               Products
             </Link>
             <Link
+              href="/recommendations"
+              className="font-medium hover:text-pink-600 transition-colors"
+            >
+              Recommendation
+            </Link>
+            <Link
               href="/cart"
               className="font-medium hover:text-pink-600 transition-colors flex items-center gap-1"
             >
@@ -101,6 +107,10 @@ const ClientNavBar = () => {
             >
               <ShoppingCart size={20} />
               Cart
+            </Link>
+
+            <Link href="/recommendations" className="hover:text-pink-500">
+              Recommendations
             </Link>
           </SignedIn>
           <SignedOut>

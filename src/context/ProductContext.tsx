@@ -17,6 +17,7 @@ type ProductState = {
   products: ProductsType[];
   selectedProduct: ProductsType | null;
   cart: ProductsType[];
+  recommendations: ProductsType[];
 };
 
 type ProductAction =
@@ -24,6 +25,7 @@ type ProductAction =
   | { type: "SELECT_PRODUCT"; payload: ProductsType | null }
   | { type: "ADD_TO_CART"; payload: ProductsType }
   | { type: "REMOVE_FROM_CART"; payload: number }
+  | { type: "SET_RECOMMENDATIONS"; payload: ProductsType[] }
   | { type: "LOAD_FROM_STORAGE"; payload: ProductState };
 
 //
@@ -104,6 +106,11 @@ function productReducer(
       saveToLocalStorage("hekto_cart", filteredCart);
       return newState;
 
+    case "SET_RECOMMENDATIONS":
+      newState = { ...state, recommendations: action.payload };
+      saveToLocalStorage("hekto_recommendations", action.payload);
+      return newState;
+
     case "LOAD_FROM_STORAGE":
       return action.payload;
 
@@ -113,7 +120,7 @@ function productReducer(
 }
 
 //
-// 3) Context’s shape: only state + dispatch
+// 3) Context's shape: only state + dispatch
 //
 
 type ProductContextType = {
@@ -125,6 +132,7 @@ const initialState: ProductState = {
   products: [],
   selectedProduct: null,
   cart: [],
+  recommendations: [],
 };
 
 const ProductContext = createContext<ProductContextType>({
@@ -147,11 +155,14 @@ export function ProductProvider({ children }: { children: ReactNode }) {
     const savedSelectedProduct =
       loadFromLocalStorage("hekto_selected_product") || null;
     const savedCart = loadFromLocalStorage("hekto_cart") || [];
+    const savedRecommendations =
+      loadFromLocalStorage("hekto_recommendations") || [];
 
     const savedState: ProductState = {
       products: savedProducts,
       selectedProduct: savedSelectedProduct,
       cart: savedCart,
+      recommendations: savedRecommendations,
     };
 
     dispatch({ type: "LOAD_FROM_STORAGE", payload: savedState });

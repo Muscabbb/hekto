@@ -1,4 +1,1 @@
---[x] Product Detail page #half
---[X] Product InterActions #complete
---[x] Cart
---[] purchasing
+
