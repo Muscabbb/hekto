@@ -5,7 +5,7 @@ import { z } from "zod";
 
 export async function SearchQuery(data: z.infer<typeof SearchSchema>) {
   try {
-    const response = await fetch("http://127.0.0.1:8000/parse", {
+    const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/parse`, {
       method: "POST",
       headers: {
         "Content-Type": "application/json",

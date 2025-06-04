@@ -26,7 +26,7 @@ export default function RecommendationsPage() {
     setLoading(true);
 
     try {
-      const response = await fetch(`http://127.0.0.1:8000/rec`, {
+      const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/rec`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -56,7 +56,10 @@ export default function RecommendationsPage() {
       console.error("Error fetching recommendations:", err);
       toast.error("Failed to fetch recommendations.");
 
-      const saved = localStorage.getItem("hekto_recommendations");
+      const saved =
+        typeof window !== "undefined"
+          ? localStorage.getItem("hekto_recommendations")
+          : null;
       if (saved) {
         try {
           const parsed = JSON.parse(saved);
