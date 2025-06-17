@@ -12,10 +12,11 @@ const MainSection = () => {
           New Furniture Collection <br /> Trends in 2020
         </h2>
         <p className="text-dark-400 w-[400px] text-wrap text-xl leading-relaxed">
-          Lorem ipsum dolor sit amet consectetur adipisicing elit. Pariatur
-          aspernatur blanditiis minus maxime voluptate excepturi nostrum
-          praesentium sit totam, neque enim. Aliquam et quo, cumque facere
-          placeat id magnam reiciendis.
+          Find your next favorite outfit with styles made for real life. Whether{" "}
+          {"you're"} dressing up or keeping it casual, our collection of
+          clothing and accessories makes it easy to look and feel good. Explore
+          fresh arrivals, seasonal picks, and everyday pieces that fit your
+          vibe.{" "}
         </p>
         <Button
           className={"bg-pink-500 text-white py-3 w-[150px] mt-5 text-center"}

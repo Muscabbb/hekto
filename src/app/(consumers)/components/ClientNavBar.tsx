@@ -29,7 +29,7 @@ const ClientNavBar = () => {
               href="/products"
               className="font-medium hover:text-pink-600 transition-colors"
             >
-              Products
+              Search Products
             </Link>
             <Link
               href="/recommendations"
