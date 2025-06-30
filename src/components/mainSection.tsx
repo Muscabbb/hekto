@@ -1,5 +1,4 @@
 import Image from "next/image";
-import { Button } from "./ui/button";
 
 const MainSection = () => {
   return (
@@ -9,7 +8,7 @@ const MainSection = () => {
           Best Furniture For Your Castle....
         </p>
         <h2 className="font-bold text-2xl md:text-5xl leading-[1.5]">
-          New Furniture Collection <br /> Trends in 2020
+          New Furniture Collection <br /> Trends in 2025
         </h2>
         <p className="text-dark-400 w-[400px] text-wrap text-xl leading-relaxed">
           Find your next favorite outfit with styles made for real life. Whether{" "}
@@ -18,11 +17,6 @@ const MainSection = () => {
           fresh arrivals, seasonal picks, and everyday pieces that fit your
           vibe.{" "}
         </p>
-        <Button
-          className={"bg-pink-500 text-white py-3 w-[150px] mt-5 text-center"}
-        >
-          Shop Now
-        </Button>
       </section>
       <section className=" hidden md:flex md:w-[50%] justify-end">
         <Image
