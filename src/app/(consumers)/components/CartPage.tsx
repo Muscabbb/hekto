@@ -141,10 +141,6 @@ const CartPage = () => {
                   />
                   <div className="flex-grow">
                     <h3 className="font-medium">{item.productDisplayName}</h3>
-                    <p className="text-sm text-gray-500">Delivery by Jun 30</p>
-                    <p className="text-sm text-gray-500">
-                      Min. order: 1000 pieces
-                    </p>
                     <div className="flex items-center mt-2">
                       <span className="text-sm text-gray-700">
                         No specification
