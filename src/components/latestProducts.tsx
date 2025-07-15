@@ -202,13 +202,6 @@ export default function LatestProducts() {
                             <span className="text-2xl font-bold text-gray-900 group-hover:text-pink-600 transition-colors duration-300">
                               ${product.price.toFixed(2)}
                             </span>
-                            <span className="text-sm text-gray-400 line-through">
-                              ${(product.price * 1.25).toFixed(2)}
-                            </span>
-                          </div>
-
-                          <div className="bg-green-100 text-green-700 px-2 py-1 rounded-full text-xs font-semibold">
-                            20% OFF
                           </div>
                         </div>
                       </CardContent>
