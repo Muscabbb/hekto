@@ -1,7 +1,6 @@
-"use client";
 import Image from "next/image";
-import { useEffect, useState } from "react";
-import { ArrowRight, Star, Sparkles } from "lucide-react";
+import { useState, useEffect } from "react";
+import { ArrowRight, Star } from "lucide-react";
 
 const MainSection = () => {
   const [displayedSubtitle, setDisplayedSubtitle] = useState("");
@@ -9,34 +8,40 @@ const MainSection = () => {
   const [displayedDescription, setDisplayedDescription] = useState("");
   const [showContent, setShowContent] = useState(false);
   const [showStats, setShowStats] = useState(false);
+  const [displayedStat1, setDisplayedStat1] = useState("");
+  const [displayedStat2, setDisplayedStat2] = useState("");
+  const [displayedStat3, setDisplayedStat3] = useState("");
 
   const subtitle = "Premium Furniture Collection";
   const title = "Transform Your Space with Luxury";
-  const description = "Discover handcrafted furniture that combines timeless elegance with modern functionality. Create your perfect sanctuary.";
+  const description =
+    "Discover handcrafted furniture that combines timeless elegance with modern functionality. Create your perfect sanctuary.";
+  const stat1 = "10K+";
+  const stat2 = "500+";
+  const stat3 = "4.9";
 
   const typeWriter = (
     text: string,
-    setter: React.Dispatch<React.SetStateAction<string>>,
-    delay: number = 50
+    setter: (text: string) => void,
+    delay = 100
   ) => {
     let index = 0;
-    const interval = setInterval(() => {
-      if (index < text.length) {
-        setter((prev) => prev + text.charAt(index));
-        index++;
-      } else {
-        clearInterval(interval);
+    const timer = setInterval(() => {
+      setter(text.slice(0, index + 1));
+      index++;
+      if (index >= text.length) {
+        clearInterval(timer);
       }
     }, delay);
   };
 
   useEffect(() => {
     const timer1 = setTimeout(() => {
-      typeWriter(subtitle, setDisplayedSubtitle, 80);
-    }, 500);
+      typeWriter(subtitle, setDisplayedSubtitle, 50);
+    }, 300);
 
     const timer2 = setTimeout(() => {
-      typeWriter(title, setDisplayedTitle, 100);
+      typeWriter(title, setDisplayedTitle, 80);
     }, 800);
 
     const timer3 = setTimeout(() => {
@@ -45,11 +50,20 @@ const MainSection = () => {
 
     const timer4 = setTimeout(() => {
       setShowContent(true);
-    }, 300);
+    }, 1500);
 
     const timer5 = setTimeout(() => {
       setShowStats(true);
+      typeWriter(stat1, setDisplayedStat1, 150);
     }, 2000);
+
+    const timer6 = setTimeout(() => {
+      typeWriter(stat2, setDisplayedStat2, 150);
+    }, 2300);
+
+    const timer7 = setTimeout(() => {
+      typeWriter(stat3, setDisplayedStat3, 150);
+    }, 2600);
 
     return () => {
       clearTimeout(timer1);
@@ -57,151 +71,115 @@ const MainSection = () => {
       clearTimeout(timer3);
       clearTimeout(timer4);
       clearTimeout(timer5);
+      clearTimeout(timer6);
+      clearTimeout(timer7);
     };
   }, []);
 
   return (
-    <section className="relative min-h-screen flex items-center justify-center overflow-hidden bg-gradient-to-br from-indigo-50 via-white to-pink-50">
-      {/* Background Elements */}
-      <div className="absolute inset-0">
-        <div className="absolute top-20 left-10 w-72 h-72 bg-pink-200 rounded-full mix-blend-multiply filter blur-xl opacity-20 animate-blob"></div>
-        <div className="absolute top-40 right-10 w-72 h-72 bg-purple-200 rounded-full mix-blend-multiply filter blur-xl opacity-20 animate-blob animation-delay-2000"></div>
-        <div className="absolute -bottom-8 left-20 w-72 h-72 bg-indigo-200 rounded-full mix-blend-multiply filter blur-xl opacity-20 animate-blob animation-delay-4000"></div>
-      </div>
-
-      <div className="relative z-10 container mx-auto px-6 lg:px-8">
-        <div className="grid lg:grid-cols-2 gap-12 lg:gap-16 items-center">
-          {/* Content Section */}
-          <div className={`space-y-8 transition-all duration-1000 ease-out transform ${
-            showContent 
-              ? "translate-x-0 opacity-100" 
-              : "-translate-x-10 opacity-0"
-          }`}>
-            {/* Badge */}
-            <div className="inline-flex items-center gap-2 px-4 py-2 bg-white/80 backdrop-blur-sm rounded-full border border-pink-200 shadow-sm">
-              <Sparkles className="w-4 h-4 text-pink-500" />
-              <span className="text-sm font-medium text-pink-600">
-                {displayedSubtitle}
-                {displayedSubtitle.length < subtitle.length && (
-                  <span className="animate-pulse text-pink-400">|</span>
-                )}
-              </span>
-            </div>
-            
-            {/* Main Title */}
-            <div className="space-y-4">
-              <h1 className="text-4xl md:text-5xl lg:text-6xl xl:text-7xl font-bold leading-tight">
-                {displayedTitle.split(" ").map((word, index) => {
-                  if (word === "Transform") {
-                    return (
-                      <span key={index} className="block text-transparent bg-clip-text bg-gradient-to-r from-pink-600 via-purple-600 to-indigo-600">
-                        {word}
-                      </span>
-                    );
-                  }
-                  if (word === "Luxury") {
-                    return (
-                      <span key={index} className="block text-transparent bg-clip-text bg-gradient-to-r from-purple-600 to-pink-600">
-                        {word}
-                      </span>
-                    );
-                  }
-                  return (
-                    <span key={index} className="text-gray-900 mr-3">
-                      {word}
-                    </span>
-                  );
-                })}
-                {displayedTitle.length < title.length && (
-                  <span className="animate-pulse text-gray-400">|</span>
-                )}
-              </h1>
-            </div>
-            
-            {/* Description */}
-            <div className="max-w-lg">
-              <p className="text-lg md:text-xl text-gray-600 leading-relaxed">
-                {displayedDescription}
-                {displayedDescription.length < description.length && (
-                  <span className="animate-pulse text-gray-400">|</span>
-                )}
-              </p>
-            </div>
-            
-            {/* CTA Buttons */}
-            <div className={`flex flex-col sm:flex-row gap-4 transition-all duration-1000 delay-1000 ${
-              showContent ? "translate-y-0 opacity-100" : "translate-y-4 opacity-0"
-            }`}>
-              <button className="group inline-flex items-center gap-2 px-8 py-4 bg-gradient-to-r from-pink-600 to-purple-600 text-white font-semibold rounded-2xl hover:shadow-xl hover:scale-105 transition-all duration-300">
-                Explore Collection
-                <ArrowRight className="w-5 h-5 group-hover:translate-x-1 transition-transform" />
-              </button>
-              <button className="px-8 py-4 border-2 border-gray-300 text-gray-700 font-semibold rounded-2xl hover:border-pink-600 hover:text-pink-600 hover:bg-pink-50 transition-all duration-300">
-                Watch Story
-              </button>
-            </div>
-
-            {/* Stats */}
-            <div className={`grid grid-cols-3 gap-8 pt-8 transition-all duration-1000 delay-1500 ${
-              showStats ? "translate-y-0 opacity-100" : "translate-y-4 opacity-0"
-            }`}>
-              <div className="text-center">
-                <div className="text-2xl md:text-3xl font-bold text-gray-900">10K+</div>
-                <div className="text-sm text-gray-600">Happy Customers</div>
-              </div>
-              <div className="text-center">
-                <div className="text-2xl md:text-3xl font-bold text-gray-900">500+</div>
-                <div className="text-sm text-gray-600">Premium Products</div>
-              </div>
-              <div className="text-center">
-                <div className="flex items-center justify-center gap-1 mb-1">
-                  <span className="text-2xl md:text-3xl font-bold text-gray-900">4.9</span>
-                  <Star className="w-5 h-5 text-yellow-400 fill-current" />
-                </div>
-                <div className="text-sm text-gray-600">Rating</div>
-              </div>
-            </div>
+    <section className="flex items-center justify-center px-5 md:px-0">
+      <section className="flex flex-col gap-2">
+        <div className="space-y-6 transition-all duration-1000 ease-out transform">
+          {/* Subtitle */}
+          <div>
+            <p className="text-pink-500 capitalize font-medium text-sm">
+              {displayedSubtitle}
+              {displayedSubtitle.length < subtitle.length && (
+                <span className="animate-pulse text-gray-400">|</span>
+              )}
+            </p>
           </div>
-          
-          {/* Image Section */}
-          <div className={`relative transition-all duration-1000 ease-out transform ${
-            showContent
-              ? "translate-x-0 opacity-100 scale-100 rotate-0"
-              : "translate-x-10 opacity-0 scale-90 rotate-6"
-          }`}>
-            {/* Main Image Container */}
-            <div className="relative">
-              {/* Glow Effect */}
-              <div className="absolute inset-0 bg-gradient-to-r from-pink-400 to-purple-400 rounded-3xl blur-3xl opacity-20 scale-110"></div>
-              
-              {/* Image */}
-              <div className="relative bg-white/10 backdrop-blur-sm rounded-3xl p-8 border border-white/20">
-                <Image
-                  src="https://sutta7ix17.ufs.sh/f/m8ZBLSTuDwTHdRVUenWmg0hruiY87B3aslWCSOIPJ4XMbpGn"
-                  width={500}
-                  height={500}
-                  alt="Premium Furniture Collection"
-                  unoptimized={true}
-                  className="w-full h-auto object-contain transition-all duration-700 hover:scale-105 hover:rotate-2"
-                />
+
+          {/* Main Title */}
+          <div className="space-y-2">
+            <h1 className="text-3xl md:text-4xl lg:text-5xl xl:text-6xl font-bold leading-tight">
+              {displayedTitle}
+              {displayedTitle.length < title.length && (
+                <span className="animate-pulse text-gray-400">|</span>
+              )}
+            </h1>
+          </div>
+
+          {/* Description */}
+          <div className="max-w-lg">
+            <p className="text-base md:text-lg text-gray-600 leading-relaxed">
+              {displayedDescription}
+              {displayedDescription.length < description.length && (
+                <span className="animate-pulse text-gray-400">|</span>
+              )}
+            </p>
+          </div>
+
+          {/* CTA Buttons */}
+          <div
+            className={`flex flex-col sm:flex-row gap-3 transition-all duration-1000 delay-1000 ${
+              showContent
+                ? "translate-y-0 opacity-100"
+                : "translate-y-4 opacity-0"
+            }`}
+          >
+            <button className="group inline-flex items-center gap-2 px-6 py-3 bg-gradient-to-r from-pink-600 to-purple-600 text-white font-semibold text-sm rounded-2xl hover:shadow-xl hover:scale-105 transition-all duration-300">
+              Explore Collection
+              <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
+            </button>
+            <button className="px-6 py-3 border-2 border-gray-300 text-gray-700 font-semibold text-sm rounded-2xl hover:border-pink-600 hover:text-pink-600 hover:bg-pink-50 transition-all duration-300">
+              Watch Story
+            </button>
+          </div>
+
+          {/* Stats */}
+          <div
+            className={`grid grid-cols-3 gap-4 pt-4 transition-all duration-1000 delay-1500 ${
+              showStats
+                ? "translate-y-0 opacity-100"
+                : "translate-y-4 opacity-0"
+            }`}
+          >
+            <div className="text-center">
+              <div className="text-xl md:text-2xl font-bold text-gray-900">
+                {displayedStat1}
+                {displayedStat1.length < stat1.length && (
+                  <span className="animate-pulse text-gray-400">|</span>
+                )}
               </div>
-              
-              {/* Floating Elements */}
-              <div className="absolute -top-4 -right-4 w-16 h-16 bg-gradient-to-r from-pink-500 to-purple-500 rounded-2xl flex items-center justify-center shadow-xl animate-bounce-slow">
-                <Sparkles className="w-8 h-8 text-white" />
+              <div className="text-xs text-gray-600">Happy Customers</div>
+            </div>
+            <div className="text-center">
+              <div className="text-xl md:text-2xl font-bold text-gray-900">
+                {displayedStat2}
+                {displayedStat2.length < stat2.length && (
+                  <span className="animate-pulse text-gray-400">|</span>
+                )}
               </div>
-              
-              <div className="absolute -bottom-6 -left-6 w-20 h-20 bg-gradient-to-r from-indigo-500 to-pink-500 rounded-full flex items-center justify-center shadow-xl animate-pulse">
-                <Star className="w-10 h-10 text-white fill-current" />
+              <div className="text-xs text-gray-600">Premium Products</div>
+            </div>
+            <div className="text-center">
+              <div className="flex items-center justify-center gap-1 mb-1">
+                <span className="text-xl md:text-2xl font-bold text-gray-900">
+                  {displayedStat3}
+                  {displayedStat3.length < stat3.length && (
+                    <span className="animate-pulse text-gray-400">|</span>
+                  )}
+                </span>
+                <Star className="w-4 h-4 text-yellow-400 fill-current" />
               </div>
-              
-              {/* Decorative Dots */}
-              <div className="absolute top-1/4 -left-8 w-3 h-3 bg-pink-400 rounded-full animate-ping"></div>
-              <div className="absolute bottom-1/3 -right-8 w-2 h-2 bg-purple-400 rounded-full animate-ping animation-delay-1000"></div>
+              <div className="text-xs text-gray-600">Rating</div>
             </div>
           </div>
         </div>
-      </div>
+      </section>
+      <section className=" hidden md:flex md:w-[50%] justify-end">
+        <Image
+          src={
+            "https://sutta7ix17.ufs.sh/f/m8ZBLSTuDwTHdRVUenWmg0hruiY87B3aslWCSOIPJ4XMbpGn"
+          }
+          width={500}
+          height={500}
+          alt="jack"
+          unoptimized={true}
+          className="max-w-[490px] max-h-[490px]"
+        />
+      </section>
     </section>
   );
 };
