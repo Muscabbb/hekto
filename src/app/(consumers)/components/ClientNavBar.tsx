@@ -1,3 +1,4 @@
+"use client";
 import { Button } from "@/components/ui/button";
 import {
   SignedIn,
@@ -9,8 +10,11 @@ import {
 import Link from "next/link";
 import { Menu, X, ShoppingCart } from "lucide-react";
 import AdminLink from "./AdminLink";
+import { useState } from "react";
 
 const ClientNavBar = () => {
+  const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+
   return (
     <header className="sticky top-0 w-full h-16 md:h-20 shadow-md bg-background z-50 transition-all duration-300">
       <nav className="flex container h-full justify-between items-center px-4 md:px-6">
@@ -76,22 +80,18 @@ const ClientNavBar = () => {
         </div>
 
         {/* Mobile Menu Toggle Button */}
-        <label
-          htmlFor="mobile-menu-toggle"
-          className="md:hidden flex items-center justify-center p-2 rounded-md text-gray-700 hover:text-pink-600 focus:outline-none cursor-pointer"
+        <button
+          onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
+          className="md:hidden flex items-center justify-center p-2 rounded-md text-gray-700 hover:text-pink-600 focus:outline-none cursor-pointer transition-colors"
         >
-          <Menu size={24} className="peer-checked/menu:hidden" />
-          <X size={24} className="hidden peer-checked/menu:block" />
-        </label>
+          {isMobileMenuOpen ? <X size={24} /> : <Menu size={24} />}
+        </button>
       </nav>
 
       {/* Mobile Navigation */}
-      <input
-        type="checkbox"
-        id="mobile-menu-toggle"
-        className="hidden peer/menu"
-      />
-      <div className="md:hidden absolute w-full bg-white shadow-lg transition-all duration-300 ease-in-out max-h-0 overflow-hidden peer-checked/menu:max-h-screen peer-checked/menu:py-4">
+      <div className={`md:hidden absolute w-full bg-white shadow-lg transition-all duration-300 ease-in-out overflow-hidden ${
+        isMobileMenuOpen ? "max-h-screen py-4" : "max-h-0"
+      }`}>
         <div className="container px-4 flex flex-col space-y-4">
           <SignedIn>
             <AdminLink />

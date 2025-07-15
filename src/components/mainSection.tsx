@@ -61,16 +61,16 @@ const MainSection = () => {
   }, []);
 
   return (
-    <section className="min-h-screen max-h-screen flex items-center justify-between px-6 md:px-12 lg:px-20 bg-gradient-to-br from-slate-50 via-white to-pink-50 overflow-hidden">
+    <section className="min-h-screen max-h-screen flex flex-col lg:flex-row items-center justify-center lg:justify-between px-4 sm:px-6 md:px-8 lg:px-12 xl:px-16 py-8 lg:py-0 bg-gradient-to-br from-slate-50 via-white to-pink-50 overflow-hidden">
       {/* Content Section */}
-      <div className={`flex-1 max-w-2xl transition-all duration-1000 ease-out transform ${
+      <div className={`flex-1 max-w-lg xl:max-w-xl text-center lg:text-left transition-all duration-1000 ease-out transform ${
         showContent 
           ? "translate-x-0 opacity-100" 
           : "-translate-x-10 opacity-0"
       }`}>
         {/* Subtitle */}
-        <div className="mb-4">
-          <p className="text-pink-600 font-semibold text-lg tracking-wide uppercase">
+        <div className="mb-3">
+          <p className="text-pink-600 font-semibold text-sm sm:text-base tracking-wide uppercase">
             {displayedSubtitle}
             {displayedSubtitle.length < subtitle.length && (
               <span className="animate-pulse text-pink-400">|</span>
@@ -79,8 +79,8 @@ const MainSection = () => {
         </div>
         
         {/* Main Title */}
-        <div className="mb-6">
-          <h1 className="font-bold text-4xl md:text-6xl lg:text-7xl leading-tight text-gray-900">
+        <div className="mb-4">
+          <h1 className="font-bold text-2xl sm:text-3xl md:text-4xl lg:text-5xl xl:text-6xl leading-tight text-gray-900">
             {displayedTitle.split(" ").map((word, index) => {
               if (word === "Trends") {
                 return (
@@ -97,7 +97,7 @@ const MainSection = () => {
                 );
               }
               return (
-                <span key={index} className="inline-block mr-3">
+                <span key={index} className="inline-block mr-2">
                   {word}
                 </span>
               );
@@ -109,8 +109,8 @@ const MainSection = () => {
         </div>
         
         {/* Description */}
-        <div className="mb-8">
-          <p className="text-gray-600 text-lg md:text-xl leading-relaxed max-w-xl">
+        <div className="mb-6">
+          <p className="text-gray-600 text-sm sm:text-base md:text-lg leading-relaxed max-w-md lg:max-w-lg mx-auto lg:mx-0">
             {displayedDescription}
             {displayedDescription.length < description.length && (
               <span className="animate-pulse text-gray-400">|</span>
@@ -119,54 +119,41 @@ const MainSection = () => {
         </div>
         
         {/* CTA Buttons */}
-        <div className={`flex flex-col sm:flex-row gap-4 transition-all duration-1000 delay-1000 ${
+        <div className={`flex flex-col sm:flex-row gap-3 justify-center lg:justify-start transition-all duration-1000 delay-1000 ${
           showContent ? "translate-y-0 opacity-100" : "translate-y-4 opacity-0"
         }`}>
-          <button className="px-8 py-4 bg-gradient-to-r from-pink-600 to-purple-600 text-white font-semibold rounded-full hover:shadow-lg hover:scale-105 transition-all duration-300">
+          <button className="px-6 py-3 bg-gradient-to-r from-pink-600 to-purple-600 text-white font-semibold text-sm sm:text-base rounded-full hover:shadow-lg hover:scale-105 transition-all duration-300">
             Shop Collection
           </button>
-          <button className="px-8 py-4 border-2 border-pink-600 text-pink-600 font-semibold rounded-full hover:bg-pink-600 hover:text-white transition-all duration-300">
+          <button className="px-6 py-3 border-2 border-pink-600 text-pink-600 font-semibold text-sm sm:text-base rounded-full hover:bg-pink-600 hover:text-white transition-all duration-300">
             View Catalog
           </button>
         </div>
       </div>
       
       {/* Image Section */}
-      <div className={`hidden lg:flex flex-1 justify-center items-center transition-all duration-1000 ease-out transform ${
+      <div className={`flex-1 flex justify-center items-center mt-8 lg:mt-0 transition-all duration-1000 ease-out transform ${
         showContent
           ? "translate-x-0 opacity-100 scale-100 rotate-0"
           : "translate-x-10 opacity-0 scale-90 rotate-6"
       }`}>
-        <div className="relative">
+        <div className="relative max-w-xs sm:max-w-sm md:max-w-md lg:max-w-lg xl:max-w-xl">
           {/* Background decoration */}
-          <div className="absolute -inset-4 bg-gradient-to-r from-pink-200 to-purple-200 rounded-full blur-2xl opacity-30 animate-pulse"></div>
+          <div className="absolute -inset-2 lg:-inset-4 bg-gradient-to-r from-pink-200 to-purple-200 rounded-full blur-xl lg:blur-2xl opacity-30 animate-pulse"></div>
           
           <Image
             src="https://sutta7ix17.ufs.sh/f/m8ZBLSTuDwTHdRVUenWmg0hruiY87B3aslWCSOIPJ4XMbpGn"
-            width={450}
-            height={450}
+            width={350}
+            height={350}
             alt="Premium Furniture Collection"
             unoptimized={true}
-            className="relative z-10 max-w-[450px] max-h-[450px] object-contain transition-all duration-700 hover:scale-105 hover:rotate-2 drop-shadow-2xl"
+            className="relative z-10 w-full h-auto max-w-[250px] sm:max-w-[300px] md:max-w-[350px] lg:max-w-[400px] xl:max-w-[450px] object-contain transition-all duration-700 hover:scale-105 hover:rotate-2 drop-shadow-xl"
           />
           
           {/* Floating elements */}
-          <div className="absolute top-10 -left-6 w-20 h-20 bg-pink-200 rounded-full opacity-60 animate-bounce-slow"></div>
-          <div className="absolute bottom-16 -right-8 w-16 h-16 bg-purple-200 rounded-full opacity-40 animate-bounce-slow" style={{animationDelay: '1s'}}></div>
+          <div className="absolute top-4 lg:top-10 -left-3 lg:-left-6 w-12 h-12 lg:w-20 lg:h-20 bg-pink-200 rounded-full opacity-60 animate-bounce-slow"></div>
+          <div className="absolute bottom-8 lg:bottom-16 -right-4 lg:-right-8 w-10 h-10 lg:w-16 lg:h-16 bg-purple-200 rounded-full opacity-40 animate-bounce-slow" style={{animationDelay: '1s'}}></div>
         </div>
-      </div>
-      
-      {/* Mobile Image */}
-      <div className={`lg:hidden absolute bottom-0 right-0 w-64 h-64 opacity-20 transition-all duration-1000 ${
-        showContent ? "opacity-20" : "opacity-0"
-      }`}>
-        <Image
-          src="https://sutta7ix17.ufs.sh/f/m8ZBLSTuDwTHdRVUenWmg0hruiY87B3aslWCSOIPJ4XMbpGn"
-          fill
-          alt="Furniture"
-          unoptimized={true}
-          className="object-contain"
-        />
       </div>
     </section>
   );
