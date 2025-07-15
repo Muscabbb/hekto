@@ -29,7 +29,9 @@ export default function LatestProducts() {
     const fetchProducts = async () => {
       try {
         setLoading(true);
-        const response = await fetch("/api/latest-products");
+        const response = await fetch(
+          `${process.env.NEXT_PUBLIC_API_URL}/latest-products`
+        );
         if (!response.ok) {
           throw new Error(`HTTP error! status: ${response.status}`);
         }
