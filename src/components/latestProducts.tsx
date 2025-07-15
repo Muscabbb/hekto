@@ -1,7 +1,7 @@
 "use client";
 import React, { useState, useEffect } from "react";
 import Image from "next/image";
-import { ShoppingCart, Eye } from "lucide-react";
+import { Eye } from "lucide-react";
 import Autoplay from "embla-carousel-autoplay";
 
 import {
@@ -150,12 +150,6 @@ export default function LatestProducts() {
                         <div className="absolute top-4 right-4 flex flex-col gap-2 opacity-0 group-hover:opacity-100 transition-all duration-500 transform translate-x-4 group-hover:translate-x-0">
                           <button className="p-2.5 bg-white/95 backdrop-blur-md rounded-full shadow-lg hover:bg-blue-500 hover:text-white transition-all duration-300 transform hover:scale-110 hover:rotate-12">
                             <Eye
-                              size={16}
-                              className="transition-transform duration-300"
-                            />
-                          </button>
-                          <button className="p-2.5 bg-white/95 backdrop-blur-md rounded-full shadow-lg hover:bg-green-500 hover:text-white transition-all duration-300 transform hover:scale-110 hover:rotate-12">
-                            <ShoppingCart
                               size={16}
                               className="transition-transform duration-300"
                             />
