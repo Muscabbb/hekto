@@ -140,6 +140,7 @@ export default function LatestProducts() {
                           fill
                           className="object-cover transition-all duration-700 group-hover:scale-105 group-hover:brightness-110"
                           sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 25vw"
+                          unoptimized={true}
                         />
 
                         {/* Gradient overlay */}
