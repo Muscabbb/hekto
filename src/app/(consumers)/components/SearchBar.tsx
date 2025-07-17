@@ -37,31 +37,52 @@ export default function SearchBar() {
   };
 
   return (
-    <Form {...form}>
-      <form
-        onSubmit={form.handleSubmit(onSubmit)}
-        className="container mx-auto my-5 flex w-full items-center"
-      >
-        <FormField
-          control={form.control}
-          name={"search"}
-          render={({ field }) => (
-            <FormItem className="flex-1/2">
-              <Input
-                {...field}
-                type="text"
-                placeholder="Search products..."
-                className="w-full"
-              />
-              <FormMessage className="text-destructive my-2" />
-            </FormItem>
-          )}
-        />
+    <div className="container mx-auto my-8 px-4">
+      <div className="max-w-4xl mx-auto">
+        <div className="text-center mb-6">
+          <h2 className="text-2xl font-bold text-gray-900 mb-2">
+            Find Your Perfect Product
+          </h2>
+          <p className="text-gray-600">
+            Search through thousands of products to find exactly what {`you're`}{" "}
+            looking for
+          </p>
+        </div>
 
-        <Button type="submit" className="ml-2">
-          <Search />
-        </Button>
-      </form>
-    </Form>
+        <Form {...form}>
+          <form onSubmit={form.handleSubmit(onSubmit)} className="relative">
+            <div className="relative flex items-center bg-white rounded-2xl shadow-lg border border-gray-200 hover:shadow-xl transition-shadow duration-300 overflow-hidden">
+              <div className="absolute left-4 text-gray-400">
+                <Search className="w-6 h-6" />
+              </div>
+
+              <FormField
+                control={form.control}
+                name={"search"}
+                render={({ field }) => (
+                  <FormItem className="flex-1">
+                    <Input
+                      {...field}
+                      type="text"
+                      placeholder="Search for products, brands, categories..."
+                      className="w-full h-16 pl-14 pr-32 text-lg border-0 bg-transparent focus:ring-0 focus:outline-none placeholder:text-gray-400"
+                    />
+                    <FormMessage className="absolute top-full left-4 mt-2 text-red-500" />
+                  </FormItem>
+                )}
+              />
+
+              <Button
+                type="submit"
+                className="absolute right-2 h-12 px-8 bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white font-semibold rounded-xl shadow-md hover:shadow-lg transition-all duration-200 transform hover:scale-105"
+              >
+                <Search className="w-5 h-5 mr-2" />
+                Search
+              </Button>
+            </div>
+          </form>
+        </Form>
+      </div>
+    </div>
   );
 }

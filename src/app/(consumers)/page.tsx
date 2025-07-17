@@ -10,8 +10,8 @@ export default async function Home() {
 
   return (
     <>
-      <section className="bg-gray-100 py-4 h-[88vh]">
-        <div className="container mx-auto mt-10 relative z-20">
+      <section className="h-[88vh]">
+        <div className="container mx-auto relative z-20">
           <MainSection />
         </div>
       </section>
