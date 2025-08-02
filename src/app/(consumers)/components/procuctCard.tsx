@@ -49,7 +49,7 @@ export default function ProductCard() {
                 handleProductPage(product, "view");
               }}
             >
-              <CardContent className="card-img h-4/5 group flex justify-center items-center bg-slate-200 relative hover:bg-white">
+              <CardContent className="card-img h-4/5 group flex justify-center items-center bg-white relative">
                 {product.image ? (
                   <Image
                     src={product.image}
