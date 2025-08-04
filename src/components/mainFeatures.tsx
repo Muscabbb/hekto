@@ -17,7 +17,12 @@ export default function FeaturedProducts() {
     const fetchProducts = async () => {
       try {
         const response = await fetch(
-          `${process.env.NEXT_PUBLIC_API_URL}/getAll`
+          `${process.env.NEXT_PUBLIC_API_URL}/getAll`,
+          {
+            headers: {
+              "ngrok-skip-browser-warning": "true",
+            },
+          }
         );
         if (!response.ok) {
           throw new Error(`HTTP error! status: ${response.status}`);

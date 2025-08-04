@@ -30,7 +30,12 @@ export default function LatestProducts() {
       try {
         setLoading(true);
         const response = await fetch(
-          `${process.env.NEXT_PUBLIC_API_URL}/latest-products`
+          `${process.env.NEXT_PUBLIC_API_URL}/latest-products`,
+          {
+            headers: {
+              "ngrok-skip-browser-warning": "true",
+            },
+          }
         );
         if (!response.ok) {
           throw new Error(`HTTP error! status: ${response.status}`);
