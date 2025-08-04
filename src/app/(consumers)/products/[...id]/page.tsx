@@ -29,7 +29,12 @@ export default function ProductDetails({ params }: ProductDetailsPageProps) {
     const fetchProduct = async () => {
       try {
         const response = await fetch(
-          `${process.env.NEXT_PUBLIC_API_URL}/getbyId/${id}`
+          `${process.env.NEXT_PUBLIC_API_URL}/getbyId/${id}`,
+          {
+            headers: {
+              "ngrok-skip-browser-warning": "true",
+            },
+          }
         );
         if (!response.ok) {
           throw new Error(`HTTP error! status: ${response.status}`);
