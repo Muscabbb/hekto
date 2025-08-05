@@ -43,7 +43,7 @@ export default function ProductDetails({ params }: ProductDetailsPageProps) {
         setProduct(data.product);
       } catch (error) {
         console.error("Failed to fetch product details:", error);
-        setError("Error fetching product details.!!");
+        setError("Err fetching product details.!!");
       } finally {
         setLoading(false);
       }
