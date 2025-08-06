@@ -8,7 +8,7 @@ import {
 } from "@clerk/nextjs";
 import Link from "next/link";
 import { Menu, X, ShoppingCart } from "lucide-react";
-import AdminLink from "./AdminLink";
+import AdminLink from "@/components/AdminLink";
 
 const ClientNavBar = () => {
   return (
