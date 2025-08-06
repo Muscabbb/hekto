@@ -1,5 +1,7 @@
 "use server";
 
+import { prisma } from "@/lib/prisma";
+
 type Actions = "view" | "add_to_cart" | "purchase";
 
 export default async function productInterAction(
@@ -15,7 +17,7 @@ export default async function productInterAction(
   await prisma?.interactions.create({
     data: {
       userId: user?.id as string,
-      productId: productId,
+      productId: parseInt(productId),
       interactionType: action,
     },
   });
