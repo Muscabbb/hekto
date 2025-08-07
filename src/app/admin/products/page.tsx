@@ -480,6 +480,7 @@ export default function ProductsManagement() {
                           alt="Preview"
                           width={120}
                           height={120}
+                          unoptimized={true}
                           className="rounded-lg object-cover border"
                         />
                       </div>
