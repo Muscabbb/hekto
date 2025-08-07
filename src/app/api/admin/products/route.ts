@@ -78,8 +78,10 @@ export async function POST(request: NextRequest) {
 
     const productData = await request.json();
 
-    // Generate a new ID
-    const newId = Date.now();
+    // Generate a new ID using timestamp but keeping it within 32-bit integer range
+    // Use last 9 digits of timestamp to ensure it fits in 32-bit integer
+    const timestamp = Date.now();
+    const newId = parseInt(timestamp.toString().slice(-9));
     const product = {
       id: newId,
       ...productData,
