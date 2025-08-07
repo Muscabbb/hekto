@@ -95,7 +95,8 @@ export async function POST(request: NextRequest) {
         amount: amount / 100, // Convert back to dollars
         currency: "USD",
         status: "PENDING" as const,
-        productIds: productIds || [],
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        productIds: productIds.map((id: any) => Number(id)),
         metadata: {
           products: products || [],
           paymentIntentId: paymentIntent.id,
