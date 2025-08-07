@@ -46,6 +46,9 @@ export async function GET(request: NextRequest) {
     // Fetch revenue data
     const revenueData = await getRevenueData(startDate, now);
 
+    // Fetch today's analytics
+    const todayAnalytics = await getTodayAnalytics();
+
 
 
     // Fetch payment status distribution
@@ -106,7 +109,9 @@ export async function GET(request: NextRequest) {
         totalOrders,
         totalNewUsers,
         avgOrderValue
-      }
+      },
+      // Add today's analytics
+      todayAnalytics
     };
 
     return NextResponse.json(analyticsData);
@@ -521,4 +526,80 @@ async function getUserActivityData(startDate: Date, endDate: Date) {
   }
 
   return days;
+}
+
+async function getTodayAnalytics() {
+  try {
+    const today = new Date();
+    const startOfToday = new Date(today.getFullYear(), today.getMonth(), today.getDate());
+    const endOfToday = new Date(today.getFullYear(), today.getMonth(), today.getDate(), 23, 59, 59, 999);
+
+    console.log("=== TODAY ANALYTICS DEBUG ===");
+    console.log("Start of today:", startOfToday);
+    console.log("End of today:", endOfToday);
+
+    // Today's new users
+    const todayNewUsers = await prisma.user.count({
+      where: {
+        createdAt: {
+          gte: startOfToday,
+          lte: endOfToday,
+        },
+        deletedAt: null,
+      },
+    });
+
+    // Today's completed payments
+    const todayPayments = await prisma.payment.findMany({
+      where: {
+        status: "COMPLETED",
+        createdAt: {
+          gte: startOfToday,
+          lte: endOfToday,
+        },
+      },
+    });
+
+    const todayRevenue = todayPayments.reduce((sum, payment) => sum + payment.amount, 0);
+    const todayOrders = todayPayments.length;
+    const todayAvgOrderValue = todayOrders > 0 ? todayRevenue / todayOrders : 0;
+
+    // Today's interactions
+    const todayInteractions = await prisma.interactions.count({
+      where: {
+        createdAt: {
+          gte: startOfToday,
+          lte: endOfToday,
+        },
+      },
+    });
+
+    console.log("Today's metrics:", {
+      newUsers: todayNewUsers,
+      revenue: todayRevenue,
+      orders: todayOrders,
+      avgOrderValue: todayAvgOrderValue,
+      interactions: todayInteractions,
+    });
+    console.log("=== TODAY ANALYTICS DEBUG END ===");
+
+    return {
+      newUsers: todayNewUsers,
+      revenue: todayRevenue,
+      orders: todayOrders,
+      avgOrderValue: todayAvgOrderValue,
+      interactions: todayInteractions,
+      date: startOfToday.toISOString().split('T')[0], // YYYY-MM-DD format
+    };
+  } catch (error) {
+    console.error("Error fetching today's analytics:", error);
+    return {
+      newUsers: 0,
+      revenue: 0,
+      orders: 0,
+      avgOrderValue: 0,
+      interactions: 0,
+      date: new Date().toISOString().split('T')[0],
+    };
+  }
 }
