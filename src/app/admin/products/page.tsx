@@ -12,6 +12,20 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import {
+  Command,
+  CommandEmpty,
+  CommandGroup,
+  CommandInput,
+  CommandItem,
+} from "@/components/ui/command";
+import {
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+} from "@/components/ui/popover";
+import { Check, ChevronsUpDown } from "lucide-react";
+import { cn } from "@/lib/utils";
+import {
   Dialog,
   DialogContent,
   DialogHeader,
@@ -52,6 +66,133 @@ const CATEGORIES = [
   "Home",
 ];
 
+const SUBCATEGORIES = [
+  "Topwear",
+  "Bottomwear",
+  "Watches",
+  "Socks",
+  "Shoes",
+  "Belts",
+  "Wallets",
+  "Sunglasses",
+  "Bags",
+  "Ties",
+  "Accessory Gift Set",
+  "Fragrance",
+  "Jewellery",
+  "Lips",
+  "Saree",
+  "Lounge Pants",
+  "Sandals",
+  "Shrug",
+  "Loungewear and Nightwear",
+  "Wallets",
+  "Apparel Set",
+  "Headwear",
+  "Innerwear Vests",
+  "Skirts",
+  "Dress",
+  "Leggings",
+  "Dupatta",
+  "Capris",
+  "Lip Gloss",
+  "Bath and Body",
+  "Makeup",
+  "Free Gifts",
+  "Nail",
+  "Hair",
+  "Skin",
+  "Skin Care",
+  "Eyes",
+  "Beauty Accessories",
+  "Water Bottle",
+  "Laptop Bag",
+  "Sports Sandals",
+  "Flip Flops",
+  "Clothing Set",
+  "Robe",
+  "Sweaters",
+  "Waistcoat",
+  "Kurtas",
+  "Kurta Sets",
+  "Tshirts",
+  "Casual Shoes",
+  "Sports Shoes",
+  "Formal Shoes",
+  "Flats",
+  "Heels",
+  "Flip Flops",
+];
+
+const ARTICLE_TYPES = [
+  "Shirts",
+  "Jeans",
+  "Watches",
+  "Sports Shoes",
+  "Tshirts",
+  "Socks",
+  "Casual Shoes",
+  "Belts",
+  "Flip Flops",
+  "Formal Shoes",
+  "Backpacks",
+  "Tops",
+  "Handbags",
+  "Kurtas",
+  "Sunglasses",
+  "Waistcoat",
+  "Wallets",
+  "Lounge Pants",
+  "Sandals",
+  "Shorts",
+  "Trousers",
+  "Kurta Sets",
+  "Heels",
+  "Laptop Bag",
+  "Sports Sandals",
+  "Flats",
+  "Ring",
+  "Tracksuits",
+  "Swimwear",
+  "Shoe Accessories",
+  "Fragrance",
+  "Sweaters",
+  "Jackets",
+  "Ties",
+  "Accessory Gift Set",
+  "Caps",
+  "Nightdress",
+  "Juttis",
+  "Clutches",
+  "Shrug",
+  "Ballerinas",
+  "Dupatta",
+  "Capris",
+  "Lip Gloss",
+  "Bath and Body",
+  "Makeup",
+  "Saree",
+  "Jewellery",
+  "Nail",
+  "Hair",
+  "Skin",
+  "Eyes",
+  "Beauty Accessories",
+  "Water Bottle",
+  "Clothing Set",
+  "Robe",
+  "Leggings",
+  "Skirts",
+  "Dress",
+  "Innerwear Vests",
+  "Headwear",
+  "Apparel Set",
+  "Free Gifts",
+  "Loungewear and Nightwear",
+  "Lips",
+  "Skin Care",
+];
+
 const GENDERS = ["Men", "Women", "Boys", "Girls", "Unisex"];
 const SEASONS = ["Summer", "Winter", "Spring", "Fall"];
 const USAGE = ["Casual", "Formal", "Sports", "Ethnic", "Party"];
@@ -79,6 +220,21 @@ export default function ProductsManagement() {
     year: new Date().getFullYear().toString(),
   });
 
+  // State for custom categories
+  const [customCategories, setCustomCategories] = useState<string[]>([]);
+  const [customSubCategories, setCustomSubCategories] = useState<string[]>([]);
+  const [customArticleTypes, setCustomArticleTypes] = useState<string[]>([]);
+
+  // State for combobox open/close
+  const [openCategory, setOpenCategory] = useState(false);
+  const [openSubCategory, setOpenSubCategory] = useState(false);
+  const [openArticleType, setOpenArticleType] = useState(false);
+
+  // Helper functions to get all categories (predefined + custom)
+  const getAllCategories = () => [...CATEGORIES, ...customCategories];
+  const getAllSubCategories = () => [...SUBCATEGORIES, ...customSubCategories];
+  const getAllArticleTypes = () => [...ARTICLE_TYPES, ...customArticleTypes];
+
   useEffect(() => {
     fetchProducts();
   }, []);
@@ -97,6 +253,34 @@ export default function ProductsManagement() {
     } finally {
       setLoading(false);
     }
+  };
+
+  // Helper functions for handling category selection and adding new ones
+  const handleCategorySelect = (value: string) => {
+    if (value && !getAllCategories().includes(value)) {
+      setCustomCategories([...customCategories, value]);
+      toast.success("New category added!");
+    }
+    setFormData({ ...formData, masterCategory: value });
+    setOpenCategory(false);
+  };
+
+  const handleSubCategorySelect = (value: string) => {
+    if (value && !getAllSubCategories().includes(value)) {
+      setCustomSubCategories([...customSubCategories, value]);
+      toast.success("New subcategory added!");
+    }
+    setFormData({ ...formData, subCategory: value });
+    setOpenSubCategory(false);
+  };
+
+  const handleArticleTypeSelect = (value: string) => {
+    if (value && !getAllArticleTypes().includes(value)) {
+      setCustomArticleTypes([...customArticleTypes, value]);
+      toast.success("New article type added!");
+    }
+    setFormData({ ...formData, articleType: value });
+    setOpenArticleType(false);
   };
 
   const handleImageUpload = (url: string) => {
@@ -293,23 +477,66 @@ export default function ProductsManagement() {
                     >
                       Category
                     </Label>
-                    <Select
-                      value={formData.masterCategory}
-                      onValueChange={(value) =>
-                        setFormData({ ...formData, masterCategory: value })
-                      }
-                    >
-                      <SelectTrigger className="w-full">
-                        <SelectValue placeholder="Select category" />
-                      </SelectTrigger>
-                      <SelectContent>
-                        {CATEGORIES.map((category) => (
-                          <SelectItem key={category} value={category}>
-                            {category}
-                          </SelectItem>
-                        ))}
-                      </SelectContent>
-                    </Select>
+                    <Popover open={openCategory} onOpenChange={setOpenCategory}>
+                      <PopoverTrigger asChild>
+                        <Button
+                          variant="outline"
+                          role="combobox"
+                          aria-expanded={openCategory}
+                          className="w-full justify-between"
+                        >
+                          {formData.masterCategory ||
+                            "Select or type category..."}
+                          <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
+                        </Button>
+                      </PopoverTrigger>
+                      <PopoverContent className="w-full p-0">
+                        <Command>
+                          <CommandInput
+                            placeholder="Search or type new category..."
+                            value={formData.masterCategory}
+                            onValueChange={(value) =>
+                              setFormData({
+                                ...formData,
+                                masterCategory: value,
+                              })
+                            }
+                          />
+                          <CommandEmpty>
+                            <div className="p-2">
+                              <Button
+                                className="w-full"
+                                onClick={() =>
+                                  handleCategorySelect(formData.masterCategory)
+                                }
+                                disabled={!formData.masterCategory?.trim()}
+                              >
+                                Add {formData.masterCategory}
+                              </Button>
+                            </div>
+                          </CommandEmpty>
+                          <CommandGroup>
+                            {getAllCategories().map((category) => (
+                              <CommandItem
+                                key={category}
+                                value={category}
+                                onSelect={() => handleCategorySelect(category)}
+                              >
+                                <Check
+                                  className={cn(
+                                    "mr-2 h-4 w-4",
+                                    formData.masterCategory === category
+                                      ? "opacity-100"
+                                      : "opacity-0"
+                                  )}
+                                />
+                                {category}
+                              </CommandItem>
+                            ))}
+                          </CommandGroup>
+                        </Command>
+                      </PopoverContent>
+                    </Popover>
                   </div>
                   <div className="space-y-2">
                     <Label
@@ -318,18 +545,68 @@ export default function ProductsManagement() {
                     >
                       Sub Category
                     </Label>
-                    <Input
-                      id="subCategory"
-                      value={formData.subCategory}
-                      onChange={(e) =>
-                        setFormData({
-                          ...formData,
-                          subCategory: e.target.value,
-                        })
-                      }
-                      className="w-full"
-                      required
-                    />
+                    <Popover
+                      open={openSubCategory}
+                      onOpenChange={setOpenSubCategory}
+                    >
+                      <PopoverTrigger asChild>
+                        <Button
+                          variant="outline"
+                          role="combobox"
+                          aria-expanded={openSubCategory}
+                          className="w-full justify-between"
+                        >
+                          {formData.subCategory ||
+                            "Select or type subcategory..."}
+                          <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
+                        </Button>
+                      </PopoverTrigger>
+                      <PopoverContent className="w-full p-0">
+                        <Command>
+                          <CommandInput
+                            placeholder="Search or type new subcategory..."
+                            value={formData.subCategory}
+                            onValueChange={(value) =>
+                              setFormData({ ...formData, subCategory: value })
+                            }
+                          />
+                          <CommandEmpty>
+                            <div className="p-2">
+                              <Button
+                                className="w-full"
+                                onClick={() =>
+                                  handleSubCategorySelect(formData.subCategory)
+                                }
+                                disabled={!formData.subCategory?.trim()}
+                              >
+                                Add {formData.subCategory}
+                              </Button>
+                            </div>
+                          </CommandEmpty>
+                          <CommandGroup>
+                            {getAllSubCategories().map((subCategory) => (
+                              <CommandItem
+                                key={subCategory}
+                                value={subCategory}
+                                onSelect={() =>
+                                  handleSubCategorySelect(subCategory)
+                                }
+                              >
+                                <Check
+                                  className={cn(
+                                    "mr-2 h-4 w-4",
+                                    formData.subCategory === subCategory
+                                      ? "opacity-100"
+                                      : "opacity-0"
+                                  )}
+                                />
+                                {subCategory}
+                              </CommandItem>
+                            ))}
+                          </CommandGroup>
+                        </Command>
+                      </PopoverContent>
+                    </Popover>
                   </div>
                 </div>
 
@@ -364,18 +641,68 @@ export default function ProductsManagement() {
                     >
                       Article Type
                     </Label>
-                    <Input
-                      id="articleType"
-                      value={formData.articleType}
-                      onChange={(e) =>
-                        setFormData({
-                          ...formData,
-                          articleType: e.target.value,
-                        })
-                      }
-                      className="w-full"
-                      required
-                    />
+                    <Popover
+                      open={openArticleType}
+                      onOpenChange={setOpenArticleType}
+                    >
+                      <PopoverTrigger asChild>
+                        <Button
+                          variant="outline"
+                          role="combobox"
+                          aria-expanded={openArticleType}
+                          className="w-full justify-between"
+                        >
+                          {formData.articleType ||
+                            "Select or type article type..."}
+                          <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
+                        </Button>
+                      </PopoverTrigger>
+                      <PopoverContent className="w-full p-0">
+                        <Command>
+                          <CommandInput
+                            placeholder="Search or type new article type..."
+                            value={formData.articleType}
+                            onValueChange={(value) =>
+                              setFormData({ ...formData, articleType: value })
+                            }
+                          />
+                          <CommandEmpty>
+                            <div className="p-2">
+                              <Button
+                                className="w-full"
+                                onClick={() =>
+                                  handleArticleTypeSelect(formData.articleType)
+                                }
+                                disabled={!formData.articleType?.trim()}
+                              >
+                                Add {formData.articleType}
+                              </Button>
+                            </div>
+                          </CommandEmpty>
+                          <CommandGroup>
+                            {getAllArticleTypes().map((articleType) => (
+                              <CommandItem
+                                key={articleType}
+                                value={articleType}
+                                onSelect={() =>
+                                  handleArticleTypeSelect(articleType)
+                                }
+                              >
+                                <Check
+                                  className={cn(
+                                    "mr-2 h-4 w-4",
+                                    formData.articleType === articleType
+                                      ? "opacity-100"
+                                      : "opacity-0"
+                                  )}
+                                />
+                                {articleType}
+                              </CommandItem>
+                            ))}
+                          </CommandGroup>
+                        </Command>
+                      </PopoverContent>
+                    </Popover>
                   </div>
                 </div>
 

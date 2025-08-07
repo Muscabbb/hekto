@@ -54,6 +54,24 @@ export async function GET(request: NextRequest) {
     // Fetch category distribution from Elasticsearch
     const categoryDistribution = await getCategoryDistribution();
 
+    // Fetch subcategory distribution
+    const subCategoryDistribution = await getSubCategoryDistribution();
+
+    // Fetch article type distribution
+    const articleTypeDistribution = await getArticleTypeDistribution();
+
+    // Fetch base color distribution
+    const baseColorDistribution = await getBaseColorDistribution();
+
+    // Fetch usage distribution
+    const usageDistribution = await getUsageDistribution();
+
+    // Fetch season distribution
+    const seasonDistribution = await getSeasonDistribution();
+
+    // Fetch gender distribution
+    const genderDistribution = await getGenderDistribution();
+
     // Fetch user activity data
     const userActivity = await getUserActivityData(startDate, now);
 
@@ -62,6 +80,12 @@ export async function GET(request: NextRequest) {
       revenueData,
       paymentStatus,
       categoryDistribution,
+      subCategoryDistribution,
+      articleTypeDistribution,
+      baseColorDistribution,
+      usageDistribution,
+      seasonDistribution,
+      genderDistribution,
       userActivity,
     };
 
@@ -204,6 +228,180 @@ async function getCategoryDistribution() {
     }));
   } catch (error) {
     console.error("Error fetching category distribution:", error);
+    return [];
+  }
+}
+
+async function getSubCategoryDistribution() {
+  try {
+    const response = await client.search({
+      index: INDEX_NAME,
+      size: 0,
+      aggs: {
+        subcategories: {
+          terms: {
+            field: "subCategory.keyword",
+            size: 30,
+          },
+        },
+      },
+    });
+
+    const buckets =
+      (response.aggregations?.subcategories as { buckets: unknown[] })?.buckets ||
+      [];
+
+    return buckets.map((bucket: any) => ({
+      subCategory: bucket.key,
+      count: bucket.doc_count,
+    }));
+  } catch (error) {
+    console.error("Error fetching subcategory distribution:", error);
+    return [];
+  }
+}
+
+async function getArticleTypeDistribution() {
+  try {
+    const response = await client.search({
+      index: INDEX_NAME,
+      size: 0,
+      aggs: {
+        articleTypes: {
+          terms: {
+            field: "articleType.keyword",
+            size: 30,
+          },
+        },
+      },
+    });
+
+    const buckets =
+      (response.aggregations?.articleTypes as { buckets: unknown[] })?.buckets ||
+      [];
+
+    return buckets.map((bucket: any) => ({
+      articleType: bucket.key,
+      count: bucket.doc_count,
+    }));
+  } catch (error) {
+    console.error("Error fetching article type distribution:", error);
+    return [];
+  }
+}
+
+async function getBaseColorDistribution() {
+  try {
+    const response = await client.search({
+      index: INDEX_NAME,
+      size: 0,
+      aggs: {
+        baseColors: {
+          terms: {
+            field: "baseColour.keyword",
+            size: 20,
+          },
+        },
+      },
+    });
+
+    const buckets =
+      (response.aggregations?.baseColors as { buckets: unknown[] })?.buckets ||
+      [];
+
+    return buckets.map((bucket: any) => ({
+      baseColor: bucket.key,
+      count: bucket.doc_count,
+    }));
+  } catch (error) {
+    console.error("Error fetching base color distribution:", error);
+    return [];
+  }
+}
+
+async function getUsageDistribution() {
+  try {
+    const response = await client.search({
+      index: INDEX_NAME,
+      size: 0,
+      aggs: {
+        usage: {
+          terms: {
+            field: "usage.keyword",
+            size: 15,
+          },
+        },
+      },
+    });
+
+    const buckets =
+      (response.aggregations?.usage as { buckets: unknown[] })?.buckets ||
+      [];
+
+    return buckets.map((bucket: any) => ({
+      usage: bucket.key,
+      count: bucket.doc_count,
+    }));
+  } catch (error) {
+    console.error("Error fetching usage distribution:", error);
+    return [];
+  }
+}
+
+async function getSeasonDistribution() {
+  try {
+    const response = await client.search({
+      index: INDEX_NAME,
+      size: 0,
+      aggs: {
+        seasons: {
+          terms: {
+            field: "season.keyword",
+            size: 10,
+          },
+        },
+      },
+    });
+
+    const buckets =
+      (response.aggregations?.seasons as { buckets: unknown[] })?.buckets ||
+      [];
+
+    return buckets.map((bucket: any) => ({
+      season: bucket.key,
+      count: bucket.doc_count,
+    }));
+  } catch (error) {
+    console.error("Error fetching season distribution:", error);
+    return [];
+  }
+}
+
+async function getGenderDistribution() {
+  try {
+    const response = await client.search({
+      index: INDEX_NAME,
+      size: 0,
+      aggs: {
+        genders: {
+          terms: {
+            field: "gender.keyword",
+            size: 10,
+          },
+        },
+      },
+    });
+
+    const buckets =
+      (response.aggregations?.genders as { buckets: unknown[] })?.buckets ||
+      [];
+
+    return buckets.map((bucket: any) => ({
+      gender: bucket.key,
+      count: bucket.doc_count,
+    }));
+  } catch (error) {
+    console.error("Error fetching gender distribution:", error);
     return [];
   }
 }

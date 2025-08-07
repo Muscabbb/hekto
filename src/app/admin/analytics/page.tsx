@@ -32,6 +32,12 @@ interface AnalyticsData {
   revenueData: { month: string; revenue: number; orders: number }[];
   paymentStatus: { status: string; count: number; percentage: number }[];
   categoryDistribution: { category: string; count: number }[];
+  subCategoryDistribution: { subCategory: string; count: number }[];
+  articleTypeDistribution: { articleType: string; count: number }[];
+  baseColorDistribution: { baseColor: string; count: number }[];
+  usageDistribution: { usage: string; count: number }[];
+  seasonDistribution: { season: string; count: number }[];
+  genderDistribution: { gender: string; count: number }[];
   userActivity: { date: string; activeUsers: number }[];
 }
 
@@ -64,7 +70,11 @@ export default function AnalyticsPage() {
   if (loading) {
     return (
       <div className="p-6">
-        <Loading text="Loading analytics data..." size="lg" variant="skeleton" />
+        <Loading
+          text="Loading analytics data..."
+          size="lg"
+          variant="skeleton"
+        />
       </div>
     );
   }
@@ -227,8 +237,6 @@ export default function AnalyticsPage() {
           </CardContent>
         </Card>
 
-
-
         {/* Payment Status Distribution */}
         <Card>
           <CardHeader>
@@ -264,22 +272,205 @@ export default function AnalyticsPage() {
       </div>
 
       {/* Category Distribution */}
-      <Card>
-        <CardHeader>
-          <CardTitle>Product Category Distribution</CardTitle>
-        </CardHeader>
-        <CardContent>
-          <ResponsiveContainer width="100%" height={400}>
-            <BarChart data={data.categoryDistribution}>
-              <CartesianGrid strokeDasharray="3 3" />
-              <XAxis dataKey="category" />
-              <YAxis />
-              <Tooltip />
-              <Bar dataKey="count" fill="#8884d8" />
-            </BarChart>
-          </ResponsiveContainer>
-        </CardContent>
-      </Card>
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+        {/* Product Category Distribution */}
+        <Card>
+          <CardHeader>
+            <CardTitle>Product Category Distribution</CardTitle>
+          </CardHeader>
+          <CardContent>
+            <ResponsiveContainer width="100%" height={300}>
+              <PieChart>
+                <Pie
+                  data={data.categoryDistribution}
+                  cx="50%"
+                  cy="50%"
+                  labelLine={false}
+                  label={({ category, percent }) =>
+                    `${category} ${percent ? (percent * 100).toFixed(0) : 0}%`
+                  }
+                  outerRadius={80}
+                  fill="#8884d8"
+                  dataKey="count"
+                >
+                  {data.categoryDistribution.map((entry, index) => (
+                    <Cell
+                      key={`cell-${index}`}
+                      fill={COLORS[index % COLORS.length]}
+                    />
+                  ))}
+                </Pie>
+                <Tooltip />
+              </PieChart>
+            </ResponsiveContainer>
+          </CardContent>
+        </Card>
+
+        {/* Sub Category Distribution */}
+        <Card>
+          <CardHeader>
+            <CardTitle>Sub Category Distribution</CardTitle>
+          </CardHeader>
+          <CardContent>
+            <ResponsiveContainer width="100%" height={300}>
+              <BarChart data={data.subCategoryDistribution}>
+                <CartesianGrid strokeDasharray="3 3" />
+                <XAxis
+                  dataKey="subCategory"
+                  angle={-45}
+                  textAnchor="end"
+                  height={80}
+                />
+                <YAxis />
+                <Tooltip />
+                <Bar dataKey="count" fill="#8884d8" />
+              </BarChart>
+            </ResponsiveContainer>
+          </CardContent>
+        </Card>
+
+        {/* Article Type Distribution */}
+        <Card>
+          <CardHeader>
+            <CardTitle>Article Type Distribution</CardTitle>
+          </CardHeader>
+          <CardContent>
+            <ResponsiveContainer width="100%" height={300}>
+              <PieChart>
+                <Pie
+                  data={data.articleTypeDistribution}
+                  cx="50%"
+                  cy="50%"
+                  labelLine={false}
+                  label={({ articleType, percent }) =>
+                    `${articleType} ${
+                      percent ? (percent * 100).toFixed(0) : 0
+                    }%`
+                  }
+                  outerRadius={80}
+                  fill="#82ca9d"
+                  dataKey="count"
+                >
+                  {data.articleTypeDistribution.map((entry, index) => (
+                    <Cell
+                      key={`cell-${index}`}
+                      fill={COLORS[index % COLORS.length]}
+                    />
+                  ))}
+                </Pie>
+                <Tooltip />
+              </PieChart>
+            </ResponsiveContainer>
+          </CardContent>
+        </Card>
+
+        {/* Base Color Distribution */}
+        <Card>
+          <CardHeader>
+            <CardTitle>Base Color Distribution</CardTitle>
+          </CardHeader>
+          <CardContent>
+            <ResponsiveContainer width="100%" height={300}>
+              <BarChart data={data.baseColorDistribution}>
+                <CartesianGrid strokeDasharray="3 3" />
+                <XAxis
+                  dataKey="baseColor"
+                  angle={-45}
+                  textAnchor="end"
+                  height={80}
+                />
+                <YAxis />
+                <Tooltip />
+                <Bar dataKey="count" fill="#ffc658" />
+              </BarChart>
+            </ResponsiveContainer>
+          </CardContent>
+        </Card>
+
+        {/* Usage Distribution */}
+        <Card>
+          <CardHeader>
+            <CardTitle>Usage Distribution</CardTitle>
+          </CardHeader>
+          <CardContent>
+            <ResponsiveContainer width="100%" height={300}>
+              <PieChart>
+                <Pie
+                  data={data.usageDistribution}
+                  cx="50%"
+                  cy="50%"
+                  labelLine={false}
+                  label={({ usage, percent }) =>
+                    `${usage} ${percent ? (percent * 100).toFixed(0) : 0}%`
+                  }
+                  outerRadius={80}
+                  fill="#ff7300"
+                  dataKey="count"
+                >
+                  {data.usageDistribution.map((entry, index) => (
+                    <Cell
+                      key={`cell-${index}`}
+                      fill={COLORS[index % COLORS.length]}
+                    />
+                  ))}
+                </Pie>
+                <Tooltip />
+              </PieChart>
+            </ResponsiveContainer>
+          </CardContent>
+        </Card>
+
+        {/* Season Distribution */}
+        <Card>
+          <CardHeader>
+            <CardTitle>Season Distribution</CardTitle>
+          </CardHeader>
+          <CardContent>
+            <ResponsiveContainer width="100%" height={300}>
+              <BarChart data={data.seasonDistribution}>
+                <CartesianGrid strokeDasharray="3 3" />
+                <XAxis dataKey="season" />
+                <YAxis />
+                <Tooltip />
+                <Bar dataKey="count" fill="#00C49F" />
+              </BarChart>
+            </ResponsiveContainer>
+          </CardContent>
+        </Card>
+
+        {/* Gender Distribution */}
+        <Card>
+          <CardHeader>
+            <CardTitle>Gender Distribution</CardTitle>
+          </CardHeader>
+          <CardContent>
+            <ResponsiveContainer width="100%" height={300}>
+              <PieChart>
+                <Pie
+                  data={data.genderDistribution}
+                  cx="50%"
+                  cy="50%"
+                  labelLine={false}
+                  label={({ gender, percent }) =>
+                    `${gender} ${percent ? (percent * 100).toFixed(0) : 0}%`
+                  }
+                  outerRadius={80}
+                  fill="#FFBB28"
+                  dataKey="count"
+                >
+                  {data.genderDistribution.map((entry, index) => (
+                    <Cell
+                      key={`cell-${index}`}
+                      fill={COLORS[index % COLORS.length]}
+                    />
+                  ))}
+                </Pie>
+                <Tooltip />
+              </PieChart>
+            </ResponsiveContainer>
+          </CardContent>
+        </Card>
+      </div>
 
       {/* User Activity */}
       <Card>
