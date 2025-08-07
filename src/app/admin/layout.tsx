@@ -1,14 +1,6 @@
 import { getCurrentUser } from "@/services/clerk";
-import { canAccessAdminPage } from "@/permissions/general";
-import { Role } from "@prisma/client";
-import { redirect } from "next/navigation";
 import Link from "next/link";
-import {
-  LayoutDashboard,
-  Package,
-  BarChart3,
-  Settings,
-} from "lucide-react";
+import { LayoutDashboard, Package, BarChart3, Settings } from "lucide-react";
 
 export default async function AdminLayout({
   children,
@@ -16,10 +8,6 @@ export default async function AdminLayout({
   children: React.ReactNode;
 }) {
   const user = await getCurrentUser({ allData: true });
-
-  if (canAccessAdminPage(user.role as Role)) {
-    redirect("/");
-  }
 
   return (
     <div className="min-h-screen bg-gray-50">
