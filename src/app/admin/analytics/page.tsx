@@ -141,7 +141,7 @@ export default function AnalyticsPage() {
               </CardHeader>
               <CardContent>
                 <div className="text-2xl font-bold">
-                  ${data.todayAnalytics.revenue.toFixed(2)}
+                  ${(data.todayAnalytics?.revenue || 0).toFixed(2)}
                 </div>
               </CardContent>
             </Card>
@@ -155,7 +155,7 @@ export default function AnalyticsPage() {
               </CardHeader>
               <CardContent>
                 <div className="text-2xl font-bold">
-                  {data.todayAnalytics.orders}
+                  {data.todayAnalytics?.orders || 0}
                 </div>
               </CardContent>
             </Card>
@@ -169,7 +169,7 @@ export default function AnalyticsPage() {
               </CardHeader>
               <CardContent>
                 <div className="text-2xl font-bold">
-                  {data.todayAnalytics.newUsers}
+                  {data.todayAnalytics?.newUsers || 0}
                 </div>
               </CardContent>
             </Card>
@@ -183,7 +183,7 @@ export default function AnalyticsPage() {
               </CardHeader>
               <CardContent>
                 <div className="text-2xl font-bold">
-                  ${data.todayAnalytics.averageOrderValue.toFixed(2)}
+                  ${(data.todayAnalytics?.averageOrderValue || 0).toFixed(2)}
                 </div>
               </CardContent>
             </Card>
@@ -197,7 +197,7 @@ export default function AnalyticsPage() {
               </CardHeader>
               <CardContent>
                 <div className="text-2xl font-bold">
-                  {data.todayAnalytics.interactions}
+                  {data.todayAnalytics?.interactions || 0}
                 </div>
               </CardContent>
             </Card>
@@ -217,15 +217,15 @@ export default function AnalyticsPage() {
             </CardHeader>
             <CardContent>
               <div className="text-2xl font-bold">
-                ${data.totalRevenue.toLocaleString()}
+                ${(data.totalRevenue || 0).toLocaleString()}
               </div>
               <p className="text-xs text-muted-foreground flex items-center">
-                {data.revenueGrowth >= 0 ? (
+                {(data.revenueGrowth || 0) >= 0 ? (
                   <TrendingUp className="h-3 w-3 mr-1 text-green-500" />
                 ) : (
                   <TrendingDown className="h-3 w-3 mr-1 text-red-500" />
                 )}
-                {Math.abs(data.revenueGrowth).toFixed(1)}% from last period
+                {Math.abs(data.revenueGrowth || 0).toFixed(1)}% from last period
               </p>
             </CardContent>
           </Card>
@@ -239,15 +239,15 @@ export default function AnalyticsPage() {
             </CardHeader>
             <CardContent>
               <div className="text-2xl font-bold">
-                {data.totalOrders.toLocaleString()}
+                {(data.totalOrders || 0).toLocaleString()}
               </div>
               <p className="text-xs text-muted-foreground flex items-center">
-                {data.ordersGrowth >= 0 ? (
+                {(data.ordersGrowth || 0) >= 0 ? (
                   <TrendingUp className="h-3 w-3 mr-1 text-green-500" />
                 ) : (
                   <TrendingDown className="h-3 w-3 mr-1 text-red-500" />
                 )}
-                {Math.abs(data.ordersGrowth).toFixed(1)}% from last period
+                {Math.abs(data.ordersGrowth || 0).toFixed(1)}% from last period
               </p>
             </CardContent>
           </Card>
@@ -259,15 +259,15 @@ export default function AnalyticsPage() {
             </CardHeader>
             <CardContent>
               <div className="text-2xl font-bold">
-                {data.totalUsers.toLocaleString()}
+                {(data.totalUsers || 0).toLocaleString()}
               </div>
               <p className="text-xs text-muted-foreground flex items-center">
-                {data.usersGrowth >= 0 ? (
+                {(data.usersGrowth || 0) >= 0 ? (
                   <TrendingUp className="h-3 w-3 mr-1 text-green-500" />
                 ) : (
                   <TrendingDown className="h-3 w-3 mr-1 text-red-500" />
                 )}
-                {Math.abs(data.usersGrowth).toFixed(1)}% from last period
+                {Math.abs(data.usersGrowth || 0).toFixed(1)}% from last period
               </p>
             </CardContent>
           </Card>
@@ -281,10 +281,10 @@ export default function AnalyticsPage() {
             </CardHeader>
             <CardContent>
               <div className="text-2xl font-bold">
-                ${data.averageOrderValue.toFixed(2)}
+                ${(data.averageOrderValue || 0).toFixed(2)}
               </div>
               <p className="text-xs text-muted-foreground">
-                Based on {data.totalOrders} orders
+                Based on {data.totalOrders || 0} orders
               </p>
             </CardContent>
           </Card>
@@ -304,7 +304,7 @@ export default function AnalyticsPage() {
             </CardHeader>
             <CardContent>
               <ResponsiveContainer width="100%" height={300}>
-                <LineChart data={data.userGrowthData}>
+                <LineChart data={data.userGrowthData || []}>
                   <CartesianGrid strokeDasharray="3 3" />
                   <XAxis dataKey="date" />
                   <YAxis />
@@ -329,7 +329,7 @@ export default function AnalyticsPage() {
             </CardHeader>
             <CardContent>
               <ResponsiveContainer width="100%" height={300}>
-                <LineChart data={data.revenueData}>
+                <LineChart data={data.revenueData || []}>
                   <CartesianGrid strokeDasharray="3 3" />
                   <XAxis dataKey="date" />
                   <YAxis yAxisId="left" />
@@ -359,7 +359,7 @@ export default function AnalyticsPage() {
             </CardHeader>
             <CardContent>
               <ResponsiveContainer width="100%" height={300}>
-                <BarChart data={data.topProducts}>
+                <BarChart data={data.topProducts || []}>
                   <CartesianGrid strokeDasharray="3 3" />
                   <XAxis dataKey="name" />
                   <YAxis />
@@ -382,7 +382,7 @@ export default function AnalyticsPage() {
               <ResponsiveContainer width="100%" height={300}>
                 <PieChart>
                   <Pie
-                    data={data.categoryData}
+                    data={data.categoryData || []}
                     cx="50%"
                     cy="50%"
                     labelLine={false}
@@ -393,7 +393,7 @@ export default function AnalyticsPage() {
                     fill="#8884d8"
                     dataKey="value"
                   >
-                    {data.categoryData.map((entry, index) => (
+                    {(data.categoryData || []).map((entry, index) => (
                       <Cell
                         key={`cell-${index}`}
                         fill={COLORS[index % COLORS.length]}
