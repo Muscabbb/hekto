@@ -75,6 +75,19 @@ export async function GET(request: NextRequest) {
     // Fetch user activity data
     const userActivity = await getUserActivityData(startDate, now);
 
+    // Calculate summary metrics for the analytics dashboard
+    const totalRevenue = revenueData.reduce((sum, item) => sum + item.revenue, 0);
+    const totalOrders = revenueData.reduce((sum, item) => sum + item.orders, 0);
+    const totalNewUsers = userGrowth.reduce((sum, item) => sum + item.newUsers, 0);
+    const avgOrderValue = totalOrders > 0 ? totalRevenue / totalOrders : 0;
+    
+    console.log("=== ANALYTICS SUMMARY ===");
+    console.log("Total Revenue:", totalRevenue);
+    console.log("Total Orders:", totalOrders);
+    console.log("Total New Users:", totalNewUsers);
+    console.log("Average Order Value:", avgOrderValue);
+    console.log("=== ANALYTICS SUMMARY END ===");
+
     const analyticsData = {
       userGrowth,
       revenueData,
@@ -87,6 +100,13 @@ export async function GET(request: NextRequest) {
       seasonDistribution,
       genderDistribution,
       userActivity,
+      // Add summary metrics
+      summary: {
+        totalRevenue,
+        totalOrders,
+        totalNewUsers,
+        avgOrderValue
+      }
     };
 
     return NextResponse.json(analyticsData);
@@ -100,12 +120,36 @@ export async function GET(request: NextRequest) {
 }
 
 async function getUserGrowthData(startDate: Date, endDate: Date) {
+  console.log("=== USER GROWTH DATA DEBUG ===");
+  console.log("Date range:", { startDate, endDate });
+  
+  // First, let's check all users in the database
+  const allUsers = await prisma.user.findMany({
+    where: {
+      deletedAt: null,
+    },
+    select: {
+      id: true,
+      createdAt: true,
+      email: true,
+    },
+  });
+  console.log("Total users in database:", allUsers.length);
+  console.log("Sample users:", allUsers.slice(0, 3).map(u => ({
+    id: u.id,
+    email: u.email,
+    createdAt: u.createdAt
+  })));
+  
   const months = [];
   const current = new Date(startDate);
 
   while (current <= endDate) {
     const monthStart = new Date(current.getFullYear(), current.getMonth(), 1);
     const monthEnd = new Date(current.getFullYear(), current.getMonth() + 1, 0);
+    
+    console.log(`Checking month: ${current.toLocaleDateString("en-US", { month: "short", year: "numeric" })}`);
+    console.log(`Month range: ${monthStart} to ${monthEnd}`);
 
     const totalUsers = await prisma.user.count({
       where: {
@@ -125,6 +169,8 @@ async function getUserGrowthData(startDate: Date, endDate: Date) {
         deletedAt: null,
       },
     });
+    
+    console.log(`Month summary - Total Users: ${totalUsers}, New Users: ${newUsers}`);
 
     months.push({
       month: current.toLocaleDateString("en-US", {
@@ -137,17 +183,36 @@ async function getUserGrowthData(startDate: Date, endDate: Date) {
 
     current.setMonth(current.getMonth() + 1);
   }
+  
+  console.log("Final user growth data:", months);
+  console.log("=== USER GROWTH DATA DEBUG END ===");
 
   return months;
 }
 
 async function getRevenueData(startDate: Date, endDate: Date) {
+  console.log("=== REVENUE DATA DEBUG ===");
+  console.log("Date range:", { startDate, endDate });
+  
+  // First, let's check all payments regardless of status
+  const allPayments = await prisma.payment.findMany();
+  console.log("Total payments in database:", allPayments.length);
+  console.log("Sample payments:", allPayments.slice(0, 3).map(p => ({
+    id: p.id,
+    amount: p.amount,
+    status: p.status,
+    createdAt: p.createdAt
+  })));
+  
   const months = [];
   const current = new Date(startDate);
 
   while (current <= endDate) {
     const monthStart = new Date(current.getFullYear(), current.getMonth(), 1);
     const monthEnd = new Date(current.getFullYear(), current.getMonth() + 1, 0);
+    
+    console.log(`Checking month: ${current.toLocaleDateString("en-US", { month: "short", year: "numeric" })}`);
+    console.log(`Month range: ${monthStart} to ${monthEnd}`);
 
     const payments = await prisma.payment.findMany({
       where: {
@@ -158,21 +223,35 @@ async function getRevenueData(startDate: Date, endDate: Date) {
         status: "COMPLETED",
       },
     });
+    
+    console.log(`Payments found for month: ${payments.length}`);
+    if (payments.length > 0) {
+      console.log("Payment details:", payments.map(p => ({
+        amount: p.amount,
+        status: p.status,
+        createdAt: p.createdAt
+      })));
+    }
 
     const revenue = payments.reduce((sum, payment) => sum + payment.amount, 0);
     const orders = payments.length;
+    
+    console.log(`Month summary - Revenue: ${revenue}, Orders: ${orders}`);
 
     months.push({
       month: current.toLocaleDateString("en-US", {
         month: "short",
         year: "numeric",
       }),
-      revenue: revenue / 100, // Convert from cents
+      revenue: revenue, // Amount is already in dollars, no need to divide by 100
       orders,
     });
 
     current.setMonth(current.getMonth() + 1);
   }
+  
+  console.log("Final revenue data:", months);
+  console.log("=== REVENUE DATA DEBUG END ===");
 
   return months;
 }
