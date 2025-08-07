@@ -39,6 +39,14 @@ interface AnalyticsData {
   seasonDistribution: { season: string; count: number }[];
   genderDistribution: { gender: string; count: number }[];
   userActivity: { date: string; activeUsers: number }[];
+  todayAnalytics: {
+    newUsers: number;
+    revenue: number;
+    orders: number;
+    avgOrderValue: number;
+    interactions: number;
+    date: string;
+  };
 }
 
 const COLORS = ["#0088FE", "#00C49F", "#FFBB28", "#FF8042", "#8884D8"];
@@ -107,6 +115,89 @@ export default function AnalyticsPage() {
             <SelectItem value="1y">1 Year</SelectItem>
           </SelectContent>
         </Select>
+      </div>
+
+      {/* Today's Analytics */}
+      <div className="mb-6">
+        <h2 className="text-xl font-semibold mb-4">{`Today's`} Performance</h2>
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-4">
+          <Card className="bg-blue-50 border-blue-200">
+            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+              <CardTitle className="text-sm font-medium text-blue-700">
+                {`Today's `}Revenue
+              </CardTitle>
+              <DollarSign className="h-4 w-4 text-blue-600" />
+            </CardHeader>
+            <CardContent>
+              <div className="text-2xl font-bold text-blue-800">
+                ${data.todayAnalytics?.revenue?.toLocaleString() || "0"}
+              </div>
+              <p className="text-xs text-blue-600">
+                {data.todayAnalytics?.date || "Today"}
+              </p>
+            </CardContent>
+          </Card>
+
+          <Card className="bg-green-50 border-green-200">
+            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+              <CardTitle className="text-sm font-medium text-green-700">
+                {`Today's`} Orders
+              </CardTitle>
+              <ShoppingBag className="h-4 w-4 text-green-600" />
+            </CardHeader>
+            <CardContent>
+              <div className="text-2xl font-bold text-green-800">
+                {data.todayAnalytics?.orders?.toLocaleString() || "0"}
+              </div>
+              <p className="text-xs text-green-600">Orders completed</p>
+            </CardContent>
+          </Card>
+
+          <Card className="bg-purple-50 border-purple-200">
+            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+              <CardTitle className="text-sm font-medium text-purple-700">
+                New Users Today
+              </CardTitle>
+              <Users className="h-4 w-4 text-purple-600" />
+            </CardHeader>
+            <CardContent>
+              <div className="text-2xl font-bold text-purple-800">
+                {data.todayAnalytics?.newUsers?.toLocaleString() || "0"}
+              </div>
+              <p className="text-xs text-purple-600">New registrations</p>
+            </CardContent>
+          </Card>
+
+          <Card className="bg-orange-50 border-orange-200">
+            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+              <CardTitle className="text-sm font-medium text-orange-700">
+                Avg Order Value
+              </CardTitle>
+              <TrendingUp className="h-4 w-4 text-orange-600" />
+            </CardHeader>
+            <CardContent>
+              <div className="text-2xl font-bold text-orange-800">
+                ${data.todayAnalytics?.avgOrderValue?.toFixed(2) || "0.00"}
+              </div>
+              <p className="text-xs text-orange-600">Per order today</p>
+            </CardContent>
+          </Card>
+
+          <Card className="bg-indigo-50 border-indigo-200">
+            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+              <CardTitle className="text-sm font-medium text-indigo-700">
+                Interactions
+              </CardTitle>
+              <TrendingUp className="h-4 w-4 text-indigo-600" />
+            </CardHeader>
+            <CardContent>
+              <div className="text-2xl font-bold text-indigo-800">
+                {data.todayAnalytics?.interactions?.toLocaleString() || "0"}
+              </div>
+              <p className="text-xs text-indigo-600">User interactions</p>
+            </CardContent>
+          </Card>
+        </div>
       </div>
 
       {/* Key Metrics */}
