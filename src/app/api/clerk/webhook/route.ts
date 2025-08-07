@@ -7,7 +7,9 @@ import dotenv from "dotenv";
 dotenv.config();
 
 export async function POST(req: Request) {
-  const SIGNING_SECRET = process.env.CLERK_WEBHOOK_SECRET;
+  const SIGNING_SECRET =
+    process.env.CLERK_WEBHOOK_SECRET ||
+    "whsec_1slWB/rrRXdyD1V6Xv7db3ueMJQCHpye";
   console.log(SIGNING_SECRET);
 
   if (!SIGNING_SECRET) {

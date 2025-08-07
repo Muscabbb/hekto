@@ -1,11 +1,16 @@
 import { NextRequest, NextResponse } from "next/server";
 import Stripe from "stripe";
 import { PrismaClient } from "@prisma/client";
+import dotenv from "dotenv";
+dotenv.config();
 
 const prisma = new PrismaClient();
-const stripe = new Stripe(process.env.STRIPE_SECRET_KEY!, {
-  apiVersion: "2025-04-30.basil",
-});
+const stripe = new Stripe(
+  process.env.STRIPE_SECRET_KEY || "whsec_WyNdSIiDkNmN7CnQnt19K6bQq3EWWCF9",
+  {
+    apiVersion: "2025-04-30.basil",
+  }
+);
 
 const webhookSecret = process.env.STRIPE_WEBHOOK_SECRET!;
 
