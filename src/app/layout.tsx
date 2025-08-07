@@ -5,6 +5,8 @@ import { Toaster } from "sonner";
 
 import "./globals.css";
 import { ProductProvider } from "@/context/ProductContext";
+import dotenv from "dotenv";
+dotenv.config();
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
