@@ -24,6 +24,10 @@ export async function GET(request: NextRequest) {
     const startDate = new Date();
 
     switch (range) {
+      case "today":
+        startDate.setHours(0, 0, 0, 0); // Start of today
+        now.setHours(23, 59, 59, 999); // End of today
+        break;
       case "7d":
         startDate.setDate(now.getDate() - 7);
         break;
