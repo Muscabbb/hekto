@@ -1,5 +1,3 @@
-export const runtime = "nodejs"; // ✅ Force nodejs runtime for env support
-
 import { Webhook } from "svix";
 import { headers } from "next/headers";
 import { WebhookEvent } from "@clerk/nextjs/server";
