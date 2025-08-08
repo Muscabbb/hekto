@@ -1,9 +1,14 @@
-import { Card, CardContent, CardFooter, CardHeader } from "@/components/ui/card";
+import {
+  Card,
+  CardContent,
+  CardFooter,
+  CardHeader,
+} from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { useProductContext } from "@/context/ProductContext";
 import Image from "next/image";
 import Link from "next/link";
-import { ShoppingCart, Star, Heart, Eye } from "lucide-react";
+import { ShoppingCart } from "lucide-react";
 import productInterAction from "../actions/productInterAction";
 import { ProductsType } from "@/types/productsType";
 import { useUser } from "@clerk/nextjs";
@@ -52,23 +57,22 @@ export default function ProductCard() {
             >
               <CardHeader className="p-0 relative">
                 <div className="absolute top-3 left-3 z-10 flex flex-col gap-2">
-                  <Badge variant="secondary" className="bg-white/90 text-gray-700 text-xs font-medium">
+                  <Badge
+                    variant="secondary"
+                    className="bg-white/90 text-gray-700 text-xs font-medium"
+                  >
                     {product.masterCategory}
                   </Badge>
                   {product.season && (
-                    <Badge variant="outline" className="bg-white/90 border-gray-300 text-gray-600 text-xs">
+                    <Badge
+                      variant="outline"
+                      className="bg-white/90 border-gray-300 text-gray-600 text-xs"
+                    >
                       {product.season}
                     </Badge>
                   )}
                 </div>
-                <div className="absolute top-3 right-3 z-10 flex flex-col gap-2 opacity-0 group-hover:opacity-100 transition-opacity duration-300">
-                  <button className="p-2 bg-white/90 rounded-full shadow-md hover:bg-white transition-colors">
-                    <Heart className="w-4 h-4 text-gray-600 hover:text-red-500" />
-                  </button>
-                  <button className="p-2 bg-white/90 rounded-full shadow-md hover:bg-white transition-colors">
-                    <Eye className="w-4 h-4 text-gray-600" />
-                  </button>
-                </div>
+                <div className="absolute top-3 right-3 z-10 flex flex-col gap-2 opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
               </CardHeader>
               <CardContent className="p-0 relative overflow-hidden">
                 <div className="aspect-square bg-gradient-to-br from-gray-50 to-gray-100 flex justify-center items-center relative group-hover:scale-105 transition-transform duration-300">
@@ -138,32 +142,31 @@ export default function ProductCard() {
                     <h3 className="font-semibold text-gray-900 text-sm leading-tight line-clamp-2 flex-1 mr-2">
                       {product.productDisplayName}
                     </h3>
-                    <div className="flex items-center gap-1 text-yellow-400">
-                      <Star className="w-4 h-4 fill-current" />
-                      <span className="text-xs text-gray-600">4.5</span>
-                    </div>
                   </div>
-                  
+
                   <div className="flex items-center gap-2 flex-wrap">
                     {product.baseColour && (
-                      <Badge variant="outline" className="text-xs px-2 py-1 bg-gray-50">
+                      <Badge
+                        variant="outline"
+                        className="text-xs px-2 py-1 bg-gray-50"
+                      >
                         {product.baseColour}
                       </Badge>
                     )}
                     {product.gender && (
-                      <Badge variant="outline" className="text-xs px-2 py-1 bg-blue-50 text-blue-700">
+                      <Badge
+                        variant="outline"
+                        className="text-xs px-2 py-1 bg-blue-50 text-blue-700"
+                      >
                         {product.gender}
                       </Badge>
                     )}
                   </div>
-                  
+
                   <div className="flex items-center justify-between">
                     <div className="flex flex-col">
                       <span className="text-lg font-bold text-gray-900">
                         ${product.price}
-                      </span>
-                      <span className="text-xs text-gray-500 line-through">
-                        ${(product.price * 1.2).toFixed(2)}
                       </span>
                     </div>
                     <div className="text-right">
