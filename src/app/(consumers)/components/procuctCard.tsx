@@ -1,25 +1,27 @@
-import {
-  Card,
-  CardContent,
-  CardFooter,
-  CardHeader,
-} from "@/components/ui/card";
+import { Card, CardContent, CardFooter, CardHeader } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { useProductContext } from "@/context/ProductContext";
-import Image from "next/image";
 import Link from "next/link";
 import { ShoppingCart } from "lucide-react";
 import productInterAction from "../actions/productInterAction";
 import { ProductsType } from "@/types/productsType";
 import { useUser } from "@clerk/nextjs";
 import { toast } from "sonner";
+import { ProductCardSkeletonGrid } from "./ProductCardSkeleton";
+import ImageWithSpinner from "./ImageWithSpinner";
 
 export default function ProductCard() {
   const { user } = useUser();
   const {
-    state: { products, cart },
+    state: { products, cart, isLoading },
     dispatch,
   } = useProductContext();
+  
+  // Show skeleton cards when loading
+  if (isLoading) {
+    return <ProductCardSkeletonGrid count={6} />;
+  }
+  
   if (products.length === 0) {
     return (
       <div className="flex justify-center items-center h-96">
@@ -77,13 +79,13 @@ export default function ProductCard() {
               <CardContent className="p-0 relative overflow-hidden">
                 <div className="aspect-square bg-gradient-to-br from-gray-50 to-gray-100 flex justify-center items-center relative group-hover:scale-105 transition-transform duration-300">
                   {product.image ? (
-                    <Image
+                    <ImageWithSpinner
                       src={product.image}
                       alt={product.productDisplayName}
                       width={300}
                       height={300}
-                      unoptimized={true}
                       className="object-contain w-full h-full p-4"
+                      containerClassName="w-full h-full"
                     />
                   ) : (
                     <div className="w-full h-full bg-gray-200 flex items-center justify-center text-gray-500 text-sm">

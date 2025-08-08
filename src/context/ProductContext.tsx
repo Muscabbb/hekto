@@ -18,6 +18,7 @@ type ProductState = {
   selectedProduct: ProductsType | null;
   cart: ProductsType[];
   recommendations: ProductsType[];
+  isLoading: boolean;
 };
 
 type ProductAction =
@@ -26,7 +27,8 @@ type ProductAction =
   | { type: "ADD_TO_CART"; payload: ProductsType }
   | { type: "REMOVE_FROM_CART"; payload: number }
   | { type: "SET_RECOMMENDATIONS"; payload: ProductsType[] }
-  | { type: "LOAD_FROM_STORAGE"; payload: ProductState };
+  | { type: "LOAD_FROM_STORAGE"; payload: ProductState }
+  | { type: "SET_LOADING"; payload: boolean };
 
 //
 // 2) Reducer: handles all state transitions in one place
@@ -114,6 +116,9 @@ function productReducer(
     case "LOAD_FROM_STORAGE":
       return action.payload;
 
+    case "SET_LOADING":
+      return { ...state, isLoading: action.payload };
+
     default:
       return state;
   }
@@ -133,6 +138,7 @@ const initialState: ProductState = {
   selectedProduct: null,
   cart: [],
   recommendations: [],
+  isLoading: false,
 };
 
 const ProductContext = createContext<ProductContextType>({
@@ -163,6 +169,7 @@ export function ProductProvider({ children }: { children: ReactNode }) {
       selectedProduct: savedSelectedProduct,
       cart: savedCart,
       recommendations: savedRecommendations,
+      isLoading: false, // Always start with loading false when loading from storage
     };
 
     dispatch({ type: "LOAD_FROM_STORAGE", payload: savedState });

@@ -20,6 +20,9 @@ export default function SearchBar() {
 
   const onSubmit = async (data: z.infer<typeof SearchSchema>) => {
     try {
+      // Set loading to true when search starts
+      dispatch({ type: "SET_LOADING", payload: true });
+      
       const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/parse`, {
         method: "POST",
         headers: {
@@ -33,6 +36,9 @@ export default function SearchBar() {
       console.log("Search result:", result);
     } catch (error) {
       console.error("Error posting search data:", error);
+    } finally {
+      // Set loading to false when search completes (success or error)
+      dispatch({ type: "SET_LOADING", payload: false });
     }
   };
 

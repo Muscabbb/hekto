@@ -1,11 +1,12 @@
 "use client";
 
-import Image from "next/image";
 import { Button } from "@/components/ui/button";
 import { useProductContext } from "@/context/ProductContext";
 import { use, useEffect, useState } from "react";
 import { ProductsType } from "@/types/productsType";
 import { toast } from "sonner";
+import ImageWithSpinner from "../../components/ImageWithSpinner";
+import LoadingSpinner from "../../components/LoadingSpinner";
 
 interface ProductDetailsPageProps {
   params: Promise<{ id: string }>;
@@ -16,6 +17,7 @@ export default function ProductDetails({ params }: ProductDetailsPageProps) {
   const [product, setProduct] = useState<ProductsType | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [addingToCart, setAddingToCart] = useState(false);
   const { state, dispatch } = useProductContext();
 
   useEffect(() => {
@@ -52,8 +54,12 @@ export default function ProductDetails({ params }: ProductDetailsPageProps) {
     fetchProduct();
   }, [id]);
 
-  const handleAddToCart = () => {
+  const handleAddToCart = async () => {
     if (product) {
+      setAddingToCart(true);
+      // Simulate loading delay for better UX
+      await new Promise(resolve => setTimeout(resolve, 800));
+      
       dispatch({
         type: "ADD_TO_CART",
         payload: product,
@@ -62,6 +68,7 @@ export default function ProductDetails({ params }: ProductDetailsPageProps) {
       toast.success("Product added to cart successfully!", {
         description: `${product.productDisplayName} has been added to your cart.`,
       });
+      setAddingToCart(false);
     }
   };
 
@@ -70,7 +77,15 @@ export default function ProductDetails({ params }: ProductDetailsPageProps) {
     : false;
 
   if (loading) {
-    return <div className="container mx-auto px-4 py-8">Loading...</div>;
+    return (
+      <div className="container mx-auto px-4 py-8 min-h-[60vh] flex items-center justify-center">
+        <LoadingSpinner 
+          size="xl" 
+          text="Loading product details..." 
+          className="text-center"
+        />
+      </div>
+    );
   }
 
   if (error) {
@@ -87,13 +102,13 @@ export default function ProductDetails({ params }: ProductDetailsPageProps) {
         {/* Product Image */}
         <div className="lg:w-1/2">
           <div className="rounded-lg overflow-hidden w-[400px] h-[400px]">
-            <Image
+            <ImageWithSpinner
               src={product.image}
               alt={product.productDisplayName}
               width={400}
               height={400}
-              unoptimized={true}
               className="object-cover w-[400px] h-[400px]"
+              containerClassName="w-[400px] h-[400px]"
             />
           </div>
         </div>
@@ -144,9 +159,18 @@ export default function ProductDetails({ params }: ProductDetailsPageProps) {
                 className="flex-1"
                 size="lg"
                 onClick={handleAddToCart}
-                disabled={isInCart}
+                disabled={isInCart || addingToCart}
               >
-                {isInCart ? "Already in Cart" : "Add to Cart"}
+                {addingToCart ? (
+                  <div className="flex items-center gap-2">
+                    <div className="animate-spin rounded-full h-4 w-4 border-2 border-white border-t-transparent"></div>
+                    Adding...
+                  </div>
+                ) : isInCart ? (
+                  "Already in Cart"
+                ) : (
+                  "Add to Cart"
+                )}
               </Button>
             </div>
           </div>

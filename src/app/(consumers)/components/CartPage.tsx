@@ -2,11 +2,11 @@
 
 import { Button } from "@/components/ui/button";
 import { Trash2 } from "lucide-react";
-import Image from "next/image";
 import { useProductContext } from "@/context/ProductContext";
 import { Checkbox } from "@/components/ui/checkbox";
 import { useEffect, useState } from "react";
 import StripeCheckout from "@/components/StripeCheckout";
+import ImageWithSpinner from "./ImageWithSpinner";
 import {
   Dialog,
   DialogContent,
@@ -131,13 +131,13 @@ const CartPage = () => {
                       handleSelectItem(item.id.toString(), checked as boolean)
                     }
                   />
-                  <Image
+                  <ImageWithSpinner
                     src={item.image}
                     alt={item.productDisplayName}
                     width={80}
                     height={80}
-                    unoptimized={true}
                     className="rounded-md"
+                    containerClassName="w-20 h-20"
                   />
                   <div className="flex-grow">
                     <h3 className="font-medium">{item.productDisplayName}</h3>

@@ -6,10 +6,10 @@ import { useProductContext } from "@/context/ProductContext";
 import { ProductsType } from "@/types/productsType";
 import { Card, CardContent, CardFooter } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import Image from "next/image";
 import Link from "next/link";
 import { ShoppingCart } from "lucide-react";
 import { toast } from "sonner";
+import Image from "next/image";
 
 export default function RecommendationsPage() {
   const { user } = useUser();
