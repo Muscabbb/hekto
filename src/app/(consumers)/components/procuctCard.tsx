@@ -170,9 +170,6 @@ export default function ProductCard() {
                       </span>
                     </div>
                     <div className="text-right">
-                      <span className="text-xs text-green-600 font-medium">
-                        Free Shipping
-                      </span>
                       <div className="text-xs text-gray-500">
                         {product.subCategory}
                       </div>
