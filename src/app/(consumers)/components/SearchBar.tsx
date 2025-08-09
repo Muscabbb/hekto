@@ -8,6 +8,7 @@ import { SearchSchema } from "@/lib/validations";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
 import { useProductContext } from "@/context/ProductContext";
+import { toast } from "sonner";
 
 export default function SearchBar() {
   const { dispatch } = useProductContext();
@@ -32,7 +33,21 @@ export default function SearchBar() {
       });
 
       const result = await response.json();
-      dispatch({ type: "SET_PRODUCTS", payload: result.products }); // Update the products state with the search results
+      
+      // Check if the response has a rejected status with a reason
+      if (result.status === 'rejected' && result.reason) {
+        // Show the reason message to the user
+        toast.error("Search Error", {
+          description: result.reason,
+          duration: 5000,
+        });
+        // Clear products or keep existing ones
+        dispatch({ type: "SET_PRODUCTS", payload: [] });
+      } else {
+        // Normal successful response
+        dispatch({ type: "SET_PRODUCTS", payload: result.products || [] });
+      }
+      
       console.log("Search result:", result);
     } catch (error) {
       console.error("Error posting search data:", error);

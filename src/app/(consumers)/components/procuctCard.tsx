@@ -24,8 +24,12 @@ export default function ProductCard() {
   
   if (products.length === 0) {
     return (
-      <div className="flex justify-center items-center h-96">
-        <p className="text-xl text-gray-500">No products available</p>
+      <div className="flex flex-col justify-center items-center h-96 text-center px-4">
+        <div className="text-6xl mb-4">🔍</div>
+        <h3 className="text-xl font-semibold text-gray-700 mb-2">No products found</h3>
+        <p className="text-gray-500 max-w-md">
+          Try searching with different keywords or make sure to use English for your search queries.
+        </p>
       </div>
     );
   }
