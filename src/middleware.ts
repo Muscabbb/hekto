@@ -6,6 +6,9 @@ const isPublicRoute = createRouteMatcher([
   "/(.*)/",
   "/api/clerk/webhook(.*)", // must be exact
   "/api/stripe/webhook(.*)", // must be exact
+  "/cart(.*)", // Allow cart access without auth
+  "/products(.*)", // Allow product browsing without auth
+  "/api/parse(.*)", // Allow product search without auth
 ]);
 
 export default clerkMiddleware(async (auth, request) => {

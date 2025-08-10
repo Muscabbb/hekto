@@ -46,14 +46,14 @@ export default function ProductCard() {
     product: ProductsType,
     action: "view" | "add_to_cart" | "purchase"
   ) => {
-    await productInterAction(product.id.toString(), user?.id as string, action);
+    await productInterAction(product.id.toString(), user?.id, action);
   };
 
   const handleProductPage = async (
     product: ProductsType,
     action: "view" | "add_to_cart" | "purchase"
   ) => {
-    await productInterAction(product.id.toString(), user?.id as string, action);
+    await productInterAction(product.id.toString(), user?.id, action);
   };
 
   return (

@@ -11,6 +11,7 @@ import {
 import { Button } from "@/components/ui/button";
 import { useProductContext } from "@/context/ProductContext";
 import { toast } from "sonner";
+import { useUser, SignInButton } from "@clerk/nextjs";
 
 const stripePromise = loadStripe(
   process.env.NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY!
@@ -135,6 +136,27 @@ const StripeCheckout = ({
   selectedItems,
   onSuccess,
 }: StripeCheckoutProps) => {
+  const { isSignedIn } = useUser();
+
+  if (!isSignedIn) {
+    return (
+      <div className="text-center space-y-4">
+        <div className="text-sm text-gray-600">
+          Please sign in to complete your purchase
+        </div>
+        <SignInButton mode="modal">
+          <Button className="w-full bg-pink-600 text-white hover:bg-pink-700">
+            Sign In to Continue
+          </Button>
+        </SignInButton>
+        <div className="text-xs text-gray-500">
+          You can browse and add items to cart without signing in, but
+          authentication is required for checkout.
+        </div>
+      </div>
+    );
+  }
+
   return (
     <Elements stripe={stripePromise}>
       <CheckoutForm
