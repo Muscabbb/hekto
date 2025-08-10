@@ -5,6 +5,7 @@ A full-stack e-commerce application built with Next.js 15, featuring user authen
 ## 🚀 Features
 
 ### Core E-commerce Features
+
 - **Product Catalog**: Browse and search products with advanced filtering
 - **Shopping Cart**: Add/remove items, persistent cart across sessions
 - **User Authentication**: Secure sign-up/sign-in with Clerk
@@ -15,12 +16,14 @@ A full-stack e-commerce application built with Next.js 15, featuring user authen
 - **Responsive Design**: Mobile-first design with Tailwind CSS
 
 ### Admin Dashboard
+
 - **Product Management**: Create, edit, and delete products
 - **Analytics Dashboard**: Sales metrics and user interaction analytics
 - **User Management**: View and manage user accounts
 - **Payment Tracking**: Monitor payment status and transaction history
 
 ### Technical Features
+
 - **Server-Side Rendering**: Next.js 15 with App Router
 - **Database**: MongoDB with Prisma ORM
 - **Search Engine**: Elasticsearch integration
@@ -31,6 +34,7 @@ A full-stack e-commerce application built with Next.js 15, featuring user authen
 ## 🛠️ Tech Stack
 
 ### Frontend
+
 - **Framework**: Next.js 15 (React 19)
 - **Styling**: Tailwind CSS + shadcn/ui components
 - **State Management**: React Context API
@@ -40,6 +44,7 @@ A full-stack e-commerce application built with Next.js 15, featuring user authen
 - **Charts**: Recharts for analytics
 
 ### Backend
+
 - **Runtime**: Node.js
 - **Database**: MongoDB
 - **ORM**: Prisma
@@ -49,6 +54,7 @@ A full-stack e-commerce application built with Next.js 15, featuring user authen
 - **File Storage**: UploadThing
 
 ### Development Tools
+
 - **Language**: TypeScript
 - **Linting**: ESLint
 - **Package Manager**: npm
@@ -93,6 +99,7 @@ hekto/
 ## 🗄️ Database Schema
 
 ### User Model
+
 - **id**: Unique identifier
 - **clerkUserId**: Clerk authentication ID
 - **email**: User email address
@@ -101,12 +108,14 @@ hekto/
 - **imageUrl**: Profile image URL
 
 ### Interactions Model
+
 - **userId**: Reference to User
 - **productId**: Product identifier
 - **interactionType**: Type of interaction (view, add_to_cart, purchase)
 - **timestamps**: Created and updated dates
 
 ### Payment Model
+
 - **userId**: Reference to User
 - **stripePaymentId**: Stripe payment intent ID
 - **amount**: Payment amount
@@ -118,7 +127,8 @@ hekto/
 ## 🚦 Getting Started
 
 ### Prerequisites
-- Node.js 18+ 
+
+- Node.js 18+
 - npm or yarn
 - MongoDB database
 - Elasticsearch instance
@@ -129,52 +139,57 @@ hekto/
 ### Installation
 
 1. **Clone the repository**
+
    ```bash
    git clone <repository-url>
    cd hekto
    ```
 
 2. **Install dependencies**
+
    ```bash
    npm install
    ```
 
 3. **Environment Setup**
    Create a `.env.local` file in the root directory:
+
    ```env
    # Database
    DATABASE_URL="mongodb://..."
-   
+
    # Clerk Authentication
    NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY="pk_..."
    CLERK_SECRET_KEY="sk_..."
    CLERK_WEBHOOK_SECRET="whsec_..."
-   
+
    # Stripe
    NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY="pk_..."
    STRIPE_SECRET_KEY="sk_..."
    STRIPE_WEBHOOK_SECRET="whsec_..."
-   
+
    # Elasticsearch
    ELASTICSEARCH_URL="https://..."
    ELASTICSEARCH_API_KEY="..."
    INDEX_NAME="hekto"
-   
+
    # API
    NEXT_PUBLIC_API_URL="http://localhost:3000/api"
-   
+
    # UploadThing
    UPLOADTHING_SECRET="sk_..."
    UPLOADTHING_APP_ID="..."
    ```
 
 4. **Database Setup**
+
    ```bash
    npx prisma generate
    npx prisma db push
    ```
 
 5. **Run the development server**
+
    ```bash
    npm run dev
    ```
@@ -194,18 +209,21 @@ hekto/
 ## 🔧 Configuration
 
 ### Clerk Setup
+
 1. Create a Clerk application
 2. Configure sign-in/sign-up options
 3. Set up webhooks for user management
 4. Add environment variables
 
 ### Stripe Setup
+
 1. Create a Stripe account
 2. Get API keys from dashboard
 3. Configure webhooks for payment events
 4. Set up payment methods
 
 ### Elasticsearch Setup
+
 1. Set up Elasticsearch instance
 2. Create index for products
 3. Configure search mappings
@@ -214,6 +232,7 @@ hekto/
 ## 🎯 Usage
 
 ### For Customers
+
 1. **Browse Products**: Visit the home page to see featured products
 2. **Search**: Use the search bar to find specific products
 3. **Add to Cart**: Click "Add to Cart" on any product
@@ -221,6 +240,7 @@ hekto/
 5. **Account**: Sign up/in to track orders and preferences
 
 ### For Administrators
+
 1. **Access Admin**: Navigate to `/admin` (requires admin role)
 2. **Manage Products**: Add, edit, or remove products
 3. **View Analytics**: Monitor sales and user interactions
@@ -236,15 +256,7 @@ hekto/
 
 ## 🚀 Deployment
 
-### Vercel (Recommended)
-1. Connect your GitHub repository to Vercel
-2. Add environment variables in Vercel dashboard
-3. Deploy automatically on push to main branch
-
-### Other Platforms
-- Ensure Node.js 18+ support
-- Set all required environment variables
-- Run `npm run build` before deployment
+The application is deployed on Vercel and can be accessed at: **https://hekto-ruddy.vercel.app/**
 
 ## 🤝 Contributing
 
