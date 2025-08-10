@@ -38,7 +38,7 @@ export default function LatestProducts() {
           }
         );
         if (!response.ok) {
-          throw new Error(`HTTP error! status: ${response.status}`);
+          throw new Error(`HTTP error status: ${response.status}`);
         }
         const data = await response.json();
         // Assuming the API response has a 'products' key containing an array
