@@ -1,13 +1,14 @@
 import { clerkMiddleware, createRouteMatcher } from "@clerk/nextjs/server";
 
 const isPublicRoute = createRouteMatcher([
+  "/", // Home page
   "/sign-in(.*)",
   "/sign-up(.*)",
-  "/(.*)/",
-  "/api/clerk/webhook(.*)", // must be exact
-  "/api/stripe/webhook(.*)", // must be exact
   "/cart(.*)", // Allow cart access without auth
   "/products(.*)", // Allow product browsing without auth
+  "/recommendations(.*)", // Allow recommendations page access
+  "/api/clerk/webhook(.*)", // must be exact
+  "/api/stripe/webhook(.*)", // must be exact
   "/api/parse(.*)", // Allow product search without auth
 ]);
 

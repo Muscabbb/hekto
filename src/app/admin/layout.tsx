@@ -1,6 +1,6 @@
 import { getCurrentUser } from "@/services/clerk";
 import Link from "next/link";
-import { LayoutDashboard, Package, BarChart3, Settings } from "lucide-react";
+import { LayoutDashboard, Package, BarChart3 } from "lucide-react";
 
 export default async function AdminLayout({
   children,
@@ -69,15 +69,6 @@ export default async function AdminLayout({
                 >
                   <BarChart3 className="mr-3 h-5 w-5" />
                   Analytics
-                </Link>
-              </li>
-              <li>
-                <Link
-                  href="/admin/settings"
-                  className="flex items-center px-4 py-2 text-gray-700 rounded-lg hover:bg-gray-100"
-                >
-                  <Settings className="mr-3 h-5 w-5" />
-                  Settings
                 </Link>
               </li>
             </ul>

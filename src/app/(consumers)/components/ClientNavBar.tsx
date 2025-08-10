@@ -1,3 +1,4 @@
+"use client";
 import { Button } from "@/components/ui/button";
 import {
   SignedIn,
@@ -8,9 +9,12 @@ import {
 } from "@clerk/nextjs";
 import Link from "next/link";
 import { Menu, X, ShoppingCart } from "lucide-react";
+import { usePathname } from "next/navigation";
 import AdminLink from "@/components/AdminLink";
 
 const ClientNavBar = () => {
+  const pathname = usePathname();
+  
   return (
     <header className="sticky top-0 w-full h-16 md:h-20 shadow-md bg-background z-50 transition-all duration-300">
       <nav className="flex container h-full justify-between items-center px-4 md:px-6">
@@ -46,6 +50,7 @@ const ClientNavBar = () => {
             </Link>
             <div className="size-10 ml-2">
               <UserButton
+                afterSignOutUrl={pathname}
                 appearance={{
                   elements: {
                     userButtonAvatarBox: { width: "100%", height: "100%" },
@@ -55,15 +60,26 @@ const ClientNavBar = () => {
             </div>
           </SignedIn>
           <SignedOut>
-            <div className="flex items-center gap-4">
-              <Button
-                asChild
-                variant={"default"}
-                className="bg-pink-600 text-white hover:bg-pink-700 transition-colors"
+            <div className="flex items-center gap-6">
+              <Link
+                href="/products"
+                className="font-medium hover:text-pink-600 transition-colors"
               >
-                <SignUpButton />
-              </Button>
-
+                Search Products
+              </Link>
+              <Link
+                href="/recommendations"
+                className="font-medium hover:text-pink-600 transition-colors"
+              >
+                Recommendation
+              </Link>
+              <Link
+                href="/cart"
+                className="font-medium hover:text-pink-600 transition-colors flex items-center gap-1"
+              >
+                <ShoppingCart size={20} />
+                Cart
+              </Link>
               <Button
                 asChild
                 variant={"outline"}
@@ -112,9 +128,38 @@ const ClientNavBar = () => {
             <Link href="/recommendations" className="hover:text-pink-500">
               Recommendations
             </Link>
+            <div className="size-10 ml-2">
+              <UserButton
+                afterSignOutUrl="/"
+                appearance={{
+                  elements: {
+                    userButtonAvatarBox: { width: "100%", height: "100%" },
+                  },
+                }}
+              />
+            </div>
           </SignedIn>
           <SignedOut>
             <div className="flex flex-col space-y-3 pt-2">
+              <Link
+                href="/products"
+                className="font-medium hover:text-pink-600 transition-colors"
+              >
+                Search Products
+              </Link>
+              <Link
+                href="/recommendations"
+                className="font-medium hover:text-pink-600 transition-colors"
+              >
+                Recommendation
+              </Link>
+              <Link
+                href="/cart"
+                className="font-medium hover:text-pink-600 transition-colors flex items-center gap-1"
+              >
+                <ShoppingCart size={20} />
+                Cart
+              </Link>
               <Button
                 asChild
                 variant={"default"}
