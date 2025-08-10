@@ -1,4 +1,9 @@
-import { Card, CardContent, CardFooter, CardHeader } from "@/components/ui/card";
+import {
+  Card,
+  CardContent,
+  CardFooter,
+  CardHeader,
+} from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { useProductContext } from "@/context/ProductContext";
 import Link from "next/link";
@@ -16,19 +21,22 @@ export default function ProductCard() {
     state: { products, cart, isLoading },
     dispatch,
   } = useProductContext();
-  
+
   // Show skeleton cards when loading
   if (isLoading) {
     return <ProductCardSkeletonGrid count={6} />;
   }
-  
+
   if (products.length === 0) {
     return (
       <div className="flex flex-col justify-center items-center h-96 text-center px-4">
         <div className="text-6xl mb-4">🔍</div>
-        <h3 className="text-xl font-semibold text-gray-700 mb-2">No products found</h3>
+        <h3 className="text-xl font-semibold text-gray-700 mb-2">
+          No products found
+        </h3>
         <p className="text-gray-500 max-w-md">
-          Try searching with different keywords or make sure to use English for your search queries.
+          Try searching with different keywords or make sure to use English for
+          your search queries!.
         </p>
       </div>
     );
