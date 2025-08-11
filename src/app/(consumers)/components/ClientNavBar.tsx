@@ -14,7 +14,7 @@ import AdminLink from "@/components/AdminLink";
 
 const ClientNavBar = () => {
   const pathname = usePathname();
-  
+
   return (
     <header className="sticky top-0 w-full h-16 md:h-20 shadow-md bg-background z-50 transition-all duration-300">
       <nav className="flex container h-full justify-between items-center px-4 md:px-6">
