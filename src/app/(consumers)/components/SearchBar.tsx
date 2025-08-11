@@ -23,7 +23,7 @@ export default function SearchBar() {
     try {
       // Set loading to true when search starts
       dispatch({ type: "SET_LOADING", payload: true });
-      
+
       const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/parse`, {
         method: "POST",
         headers: {
@@ -33,9 +33,9 @@ export default function SearchBar() {
       });
 
       const result = await response.json();
-      
+
       // Check if the response has a rejected status with a reason
-      if (result.status === 'rejected' && result.reason) {
+      if (result.status === "rejected" && result.reason) {
         // Show the reason message to the user
         toast.error("Search Error", {
           description: result.reason,
@@ -47,8 +47,8 @@ export default function SearchBar() {
         // Normal successful response
         dispatch({ type: "SET_PRODUCTS", payload: result.products || [] });
       }
-      
-      console.log("Search result:", result);
+
+      console.log("Search result=", result);
     } catch (error) {
       console.error("Error posting search data:", error);
     } finally {
