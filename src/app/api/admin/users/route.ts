@@ -1,6 +1,8 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
+import { syncClerkUserMetadata } from "@/services/clerk";
+import { clerkClient } from "@clerk/nextjs/server";
 
 // GET - Fetch all users with pagination and search
 export async function GET(request: NextRequest) {
@@ -34,24 +36,62 @@ export async function GET(request: NextRequest) {
       where.deletedAt = { not: null };
     }
 
-    // Get users with pagination
-    const [users, totalCount] = await Promise.all([
-      prisma.user.findMany({
-        where,
-        skip,
-        take: limit,
-        orderBy: { createdAt: "desc" },
-        include: {
-          _count: {
-            select: {
-              interactions: true,
-              payments: true,
+    // Get users with pagination - handle null createdAt gracefully
+    let users, totalCount;
+    
+    try {
+      [users, totalCount] = await Promise.all([
+        prisma.user.findMany({
+          where,
+          skip,
+          take: limit,
+          orderBy: [{ createdAt: "desc" }, { id: "desc" }],
+          select: {
+            id: true,
+            email: true,
+            name: true,
+            role: true,
+            imageUrl: true,
+            createdAt: true,
+            updatedAt: true,
+            deletedAt: true,
+            _count: {
+              select: {
+                interactions: true,
+                payments: true,
+              },
             },
           },
-        },
-      }),
-      prisma.user.count({ where }),
-    ]);
+        }),
+        prisma.user.count({ where }),
+      ]);
+    } catch (error) {
+      // Fallback: order by id only if createdAt has issues
+      console.warn("CreatedAt ordering failed, falling back to id ordering:", error);
+      [users, totalCount] = await Promise.all([
+        prisma.user.findMany({
+            where,
+            skip,
+            take: limit,
+            orderBy: { id: "desc" },
+            select: {
+              id: true,
+              email: true,
+              name: true,
+              role: true,
+              imageUrl: true,
+              deletedAt: true,
+              _count: {
+                select: {
+                  interactions: true,
+                  payments: true,
+                },
+              },
+            },
+          }),
+        prisma.user.count({ where }),
+      ]);
+    }
 
     const totalPages = Math.ceil(totalCount / limit);
 
@@ -106,6 +146,27 @@ export async function PUT(request: NextRequest) {
       where: { id: userId },
       data: updateData,
     });
+
+    // Sync the updated user data with Clerk
+    try {
+      // Always sync metadata for role changes
+      await syncClerkUserMetadata({
+        id: updatedUser.id,
+        clerkUserId: updatedUser.clerkUserId,
+        role: updatedUser.role,
+      });
+
+      // Handle user activation/deactivation in Clerk
+      const client = await clerkClient();
+      if (action === "deactivate") {
+        await client.users.banUser(updatedUser.clerkUserId);
+      } else if (action === "activate") {
+        await client.users.unbanUser(updatedUser.clerkUserId);
+      }
+    } catch (error) {
+      console.error('Failed to sync user data with Clerk:', error);
+      // Don't fail the request if Clerk sync fails, but log the error
+    }
 
     return NextResponse.json({ user: updatedUser });
   } catch (error) {

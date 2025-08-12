@@ -54,13 +54,12 @@ import { TableSkeleton } from "@/components/ui/loading";
 
 interface User {
   id: string;
-  clerkUserId: string;
   email: string;
   name: string;
   role: "admin" | "user";
   imageUrl?: string;
-  createdAt: string;
-  updatedAt: string;
+  createdAt?: string;
+  updatedAt?: string;
   deletedAt?: string;
   _count: {
     interactions: number;
@@ -300,8 +299,8 @@ export default function UsersManagement() {
                                   className="rounded-full object-cover"
                                 />
                               ) : (
-                                <div className="h-10 w-10 rounded-full bg-gray-200 flex items-center justify-center">
-                                  <Users className="h-5 w-5 text-gray-400" />
+                                <div className="h-10 w-10 rounded-full bg-gradient-to-br from-blue-500 to-purple-600 flex items-center justify-center text-white font-semibold text-sm">
+                                  {user.name.charAt(0).toUpperCase()}
                                 </div>
                               )}
                             </div>
@@ -327,12 +326,21 @@ export default function UsersManagement() {
                         </TableCell>
                         <TableCell>
                           <div className="text-sm">
-                            <p>
-                              {format(new Date(user.createdAt), "MMM d, yyyy")}
-                            </p>
-                            <p className="text-gray-500">
-                              {format(new Date(user.createdAt), "h:mm a")}
-                            </p>
+                            {user.createdAt ? (
+                              <>
+                                <p>
+                                  {format(
+                                    new Date(user.createdAt),
+                                    "MMM d, yyyy"
+                                  )}
+                                </p>
+                                <p className="text-gray-500">
+                                  {format(new Date(user.createdAt), "h:mm a")}
+                                </p>
+                              </>
+                            ) : (
+                              <p className="text-gray-500">N/A</p>
+                            )}
                           </div>
                         </TableCell>
                         <TableCell>
@@ -465,8 +473,8 @@ export default function UsersManagement() {
                       className="rounded-full object-cover"
                     />
                   ) : (
-                    <div className="h-16 w-16 rounded-full bg-gray-200 flex items-center justify-center">
-                      <Users className="h-8 w-8 text-gray-400" />
+                    <div className="h-16 w-16 rounded-full bg-gradient-to-br from-blue-500 to-purple-600 flex items-center justify-center text-white font-bold text-xl">
+                      {selectedUser.name.charAt(0).toUpperCase()}
                     </div>
                   )}
                 </div>
@@ -491,18 +499,12 @@ export default function UsersManagement() {
                 </div>
                 <div>
                   <Label className="text-sm font-medium text-gray-500">
-                    Clerk ID
-                  </Label>
-                  <p className="text-sm font-mono bg-gray-100 p-2 rounded">
-                    {selectedUser.clerkUserId}
-                  </p>
-                </div>
-                <div>
-                  <Label className="text-sm font-medium text-gray-500">
                     Joined Date
                   </Label>
                   <p className="text-sm">
-                    {format(new Date(selectedUser.createdAt), "PPP")}
+                    {selectedUser.createdAt
+                      ? format(new Date(selectedUser.createdAt), "PPP")
+                      : "N/A"}
                   </p>
                 </div>
                 <div>
@@ -510,7 +512,9 @@ export default function UsersManagement() {
                     Last Updated
                   </Label>
                   <p className="text-sm">
-                    {format(new Date(selectedUser.updatedAt), "PPP")}
+                    {selectedUser.updatedAt
+                      ? format(new Date(selectedUser.updatedAt), "PPP")
+                      : "N/A"}
                   </p>
                 </div>
                 <div>
