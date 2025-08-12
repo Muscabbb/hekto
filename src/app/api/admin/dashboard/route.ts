@@ -1,16 +1,16 @@
 import { NextResponse } from "next/server";
-// import { getCurrentUser } from "@/services/clerk";
-// import { canAccessAdminPage } from "@/permissions/general";
-// import { Role } from "@prisma/client";
+import { getCurrentUser } from "@/services/clerk";
+import { canAccessAdminPage } from "@/permissions/general";
+import { Role } from "@prisma/client";
 import { prisma } from "@/lib/prisma";
 
 export async function GET() {
   try {
-    // const user = await getCurrentUser({ allData: true });
+    const user = await getCurrentUser({ allData: true });
 
-    // if (!user.data || !canAccessAdminPage(user.role as Role)) {
-    //   return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
-    // }
+    if (!user.data || !canAccessAdminPage(user.role as Role)) {
+      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+    }
 
     const [totalUsers, totalPayments] = await Promise.all([
       prisma.user.count(),

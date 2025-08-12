@@ -1,8 +1,8 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import { NextRequest, NextResponse } from "next/server";
-// import { getCurrentUser } from "@/services/clerk";
-// import { canAccessAdminPage } from "@/permissions/general";
-// import { Role } from "@prisma/client";
+import { getCurrentUser } from "@/services/clerk";
+import { canAccessAdminPage } from "@/permissions/general";
+import { Role } from "@prisma/client";
 import client from "@/lib/elastic/elasticClient";
 
 const INDEX_NAME = process.env.INDEX_NAME || "hekto";
@@ -10,11 +10,11 @@ const INDEX_NAME = process.env.INDEX_NAME || "hekto";
 // GET - Fetch all products
 export async function GET(request: NextRequest) {
   try {
-    // const user = await getCurrentUser({ allData: true });
+    const user = await getCurrentUser({ allData: true });
 
-    // if (!user.data || !canAccessAdminPage(user.role as Role)) {
-    //   return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
-    // }
+    if (!user.data || !canAccessAdminPage(user.role as Role)) {
+      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+    }
 
     const { searchParams } = new URL(request.url);
     const from = parseInt(searchParams.get("from") || "0");
@@ -70,11 +70,11 @@ export async function GET(request: NextRequest) {
 // POST - Create new product
 export async function POST(request: NextRequest) {
   try {
-    // const user = await getCurrentUser({ allData: true });
+    const user = await getCurrentUser({ allData: true });
 
-    // if (!user.data || !canAccessAdminPage(user.role as Role)) {
-    //   return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
-    // }
+    if (!user.data || !canAccessAdminPage(user.role as Role)) {
+      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+    }
 
     const productData = await request.json();
 

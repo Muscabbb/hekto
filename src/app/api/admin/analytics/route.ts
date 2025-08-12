@@ -1,9 +1,9 @@
 /* eslint-disable @typescript-eslint/no-unused-vars */
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import { NextRequest, NextResponse } from "next/server";
-// import { getCurrentUser } from "@/services/clerk";
-// import { canAccessAdminPage } from "@/permissions/general";
-// import { Role } from "@prisma/client";
+import { getCurrentUser } from "@/services/clerk";
+import { canAccessAdminPage } from "@/permissions/general";
+import { Role } from "@prisma/client";
 import { prisma } from "@/lib/prisma";
 import client from "@/lib/elastic/elasticClient";
 
@@ -11,11 +11,11 @@ const INDEX_NAME = process.env.INDEX_NAME || "hekto";
 
 export async function GET(request: NextRequest) {
   try {
-    // const user = await getCurrentUser({ allData: true });
+    const user = await getCurrentUser({ allData: true });
 
-    // if (!user.data || !canAccessAdminPage(user.role as Role)) {
-    //   return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
-    // }
+    if (!user.data || !canAccessAdminPage(user.role as Role)) {
+      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+    }
 
     const { searchParams } = new URL(request.url);
     const range = searchParams.get("range") || "30d";
@@ -85,11 +85,17 @@ export async function GET(request: NextRequest) {
     const userActivity = await getUserActivityData(startDate, now);
 
     // Calculate summary metrics for the analytics dashboard
-    const totalRevenue = revenueData.reduce((sum, item) => sum + item.revenue, 0);
+    const totalRevenue = revenueData.reduce(
+      (sum, item) => sum + item.revenue,
+      0
+    );
     const totalOrders = revenueData.reduce((sum, item) => sum + item.orders, 0);
-    const totalNewUsers = userGrowth.reduce((sum, item) => sum + item.newUsers, 0);
+    const totalNewUsers = userGrowth.reduce(
+      (sum, item) => sum + item.newUsers,
+      0
+    );
     const avgOrderValue = totalOrders > 0 ? totalRevenue / totalOrders : 0;
-    
+
     console.log("=== ANALYTICS SUMMARY ===");
     console.log("Total Revenue:", totalRevenue);
     console.log("Total Orders:", totalOrders);
@@ -116,10 +122,10 @@ export async function GET(request: NextRequest) {
         totalRevenue,
         totalOrders,
         totalNewUsers,
-        avgOrderValue
+        avgOrderValue,
       },
       // Add today's analytics
-      todayAnalytics
+      todayAnalytics,
     };
 
     return NextResponse.json(analyticsData);
@@ -135,7 +141,7 @@ export async function GET(request: NextRequest) {
 async function getUserGrowthData(startDate: Date, endDate: Date) {
   console.log("=== USER GROWTH DATA DEBUG ===");
   console.log("Date range:", { startDate, endDate });
-  
+
   // First, let's check all users in the database
   const allUsers = await prisma.user.findMany({
     where: {
@@ -148,20 +154,28 @@ async function getUserGrowthData(startDate: Date, endDate: Date) {
     },
   });
   console.log("Total users in database:", allUsers.length);
-  console.log("Sample users:", allUsers.slice(0, 3).map(u => ({
-    id: u.id,
-    email: u.email,
-    createdAt: u.createdAt
-  })));
-  
+  console.log(
+    "Sample users:",
+    allUsers.slice(0, 3).map((u) => ({
+      id: u.id,
+      email: u.email,
+      createdAt: u.createdAt,
+    }))
+  );
+
   const months = [];
   const current = new Date(startDate);
 
   while (current <= endDate) {
     const monthStart = new Date(current.getFullYear(), current.getMonth(), 1);
     const monthEnd = new Date(current.getFullYear(), current.getMonth() + 1, 0);
-    
-    console.log(`Checking month: ${current.toLocaleDateString("en-US", { month: "short", year: "numeric" })}`);
+
+    console.log(
+      `Checking month: ${current.toLocaleDateString("en-US", {
+        month: "short",
+        year: "numeric",
+      })}`
+    );
     console.log(`Month range: ${monthStart} to ${monthEnd}`);
 
     const totalUsers = await prisma.user.count({
@@ -182,8 +196,10 @@ async function getUserGrowthData(startDate: Date, endDate: Date) {
         deletedAt: null,
       },
     });
-    
-    console.log(`Month summary - Total Users: ${totalUsers}, New Users: ${newUsers}`);
+
+    console.log(
+      `Month summary - Total Users: ${totalUsers}, New Users: ${newUsers}`
+    );
 
     months.push({
       month: current.toLocaleDateString("en-US", {
@@ -196,7 +212,7 @@ async function getUserGrowthData(startDate: Date, endDate: Date) {
 
     current.setMonth(current.getMonth() + 1);
   }
-  
+
   console.log("Final user growth data:", months);
   console.log("=== USER GROWTH DATA DEBUG END ===");
 
@@ -206,25 +222,33 @@ async function getUserGrowthData(startDate: Date, endDate: Date) {
 async function getRevenueData(startDate: Date, endDate: Date) {
   console.log("=== REVENUE DATA DEBUG ===");
   console.log("Date range:", { startDate, endDate });
-  
+
   // First, let's check all payments regardless of status
   const allPayments = await prisma.payment.findMany();
   console.log("Total payments in database:", allPayments.length);
-  console.log("Sample payments:", allPayments.slice(0, 3).map(p => ({
-    id: p.id,
-    amount: p.amount,
-    status: p.status,
-    createdAt: p.createdAt
-  })));
-  
+  console.log(
+    "Sample payments:",
+    allPayments.slice(0, 3).map((p) => ({
+      id: p.id,
+      amount: p.amount,
+      status: p.status,
+      createdAt: p.createdAt,
+    }))
+  );
+
   const months = [];
   const current = new Date(startDate);
 
   while (current <= endDate) {
     const monthStart = new Date(current.getFullYear(), current.getMonth(), 1);
     const monthEnd = new Date(current.getFullYear(), current.getMonth() + 1, 0);
-    
-    console.log(`Checking month: ${current.toLocaleDateString("en-US", { month: "short", year: "numeric" })}`);
+
+    console.log(
+      `Checking month: ${current.toLocaleDateString("en-US", {
+        month: "short",
+        year: "numeric",
+      })}`
+    );
     console.log(`Month range: ${monthStart} to ${monthEnd}`);
 
     const payments = await prisma.payment.findMany({
@@ -236,19 +260,22 @@ async function getRevenueData(startDate: Date, endDate: Date) {
         status: "COMPLETED",
       },
     });
-    
+
     console.log(`Payments found for month: ${payments.length}`);
     if (payments.length > 0) {
-      console.log("Payment details:", payments.map(p => ({
-        amount: p.amount,
-        status: p.status,
-        createdAt: p.createdAt
-      })));
+      console.log(
+        "Payment details:",
+        payments.map((p) => ({
+          amount: p.amount,
+          status: p.status,
+          createdAt: p.createdAt,
+        }))
+      );
     }
 
     const revenue = payments.reduce((sum, payment) => sum + payment.amount, 0);
     const orders = payments.length;
-    
+
     console.log(`Month summary - Revenue: ${revenue}, Orders: ${orders}`);
 
     months.push({
@@ -262,14 +289,12 @@ async function getRevenueData(startDate: Date, endDate: Date) {
 
     current.setMonth(current.getMonth() + 1);
   }
-  
+
   console.log("Final revenue data:", months);
   console.log("=== REVENUE DATA DEBUG END ===");
 
   return months;
 }
-
-
 
 async function getPaymentStatusData(startDate: Date, endDate: Date) {
   const payments = await prisma.payment.findMany({
@@ -340,8 +365,8 @@ async function getSubCategoryDistribution() {
     });
 
     const buckets =
-      (response.aggregations?.subcategories as { buckets: unknown[] })?.buckets ||
-      [];
+      (response.aggregations?.subcategories as { buckets: unknown[] })
+        ?.buckets || [];
 
     return buckets.map((bucket: any) => ({
       subCategory: bucket.key,
@@ -369,8 +394,8 @@ async function getArticleTypeDistribution() {
     });
 
     const buckets =
-      (response.aggregations?.articleTypes as { buckets: unknown[] })?.buckets ||
-      [];
+      (response.aggregations?.articleTypes as { buckets: unknown[] })
+        ?.buckets || [];
 
     return buckets.map((bucket: any) => ({
       articleType: bucket.key,
@@ -427,8 +452,7 @@ async function getUsageDistribution() {
     });
 
     const buckets =
-      (response.aggregations?.usage as { buckets: unknown[] })?.buckets ||
-      [];
+      (response.aggregations?.usage as { buckets: unknown[] })?.buckets || [];
 
     return buckets.map((bucket: any) => ({
       usage: bucket.key,
@@ -456,8 +480,7 @@ async function getSeasonDistribution() {
     });
 
     const buckets =
-      (response.aggregations?.seasons as { buckets: unknown[] })?.buckets ||
-      [];
+      (response.aggregations?.seasons as { buckets: unknown[] })?.buckets || [];
 
     return buckets.map((bucket: any) => ({
       season: bucket.key,
@@ -485,8 +508,7 @@ async function getGenderDistribution() {
     });
 
     const buckets =
-      (response.aggregations?.genders as { buckets: unknown[] })?.buckets ||
-      [];
+      (response.aggregations?.genders as { buckets: unknown[] })?.buckets || [];
 
     return buckets.map((bucket: any) => ({
       gender: bucket.key,
@@ -539,8 +561,20 @@ async function getUserActivityData(startDate: Date, endDate: Date) {
 async function getTodayAnalytics() {
   try {
     const today = new Date();
-    const startOfToday = new Date(today.getFullYear(), today.getMonth(), today.getDate());
-    const endOfToday = new Date(today.getFullYear(), today.getMonth(), today.getDate(), 23, 59, 59, 999);
+    const startOfToday = new Date(
+      today.getFullYear(),
+      today.getMonth(),
+      today.getDate()
+    );
+    const endOfToday = new Date(
+      today.getFullYear(),
+      today.getMonth(),
+      today.getDate(),
+      23,
+      59,
+      59,
+      999
+    );
 
     console.log("=== TODAY ANALYTICS DEBUG ===");
     console.log("Start of today:", startOfToday);
@@ -568,7 +602,10 @@ async function getTodayAnalytics() {
       },
     });
 
-    const todayRevenue = todayPayments.reduce((sum, payment) => sum + payment.amount, 0);
+    const todayRevenue = todayPayments.reduce(
+      (sum, payment) => sum + payment.amount,
+      0
+    );
     const todayOrders = todayPayments.length;
     const todayAvgOrderValue = todayOrders > 0 ? todayRevenue / todayOrders : 0;
 
@@ -597,7 +634,7 @@ async function getTodayAnalytics() {
       orders: todayOrders,
       avgOrderValue: todayAvgOrderValue,
       interactions: todayInteractions,
-      date: startOfToday.toISOString().split('T')[0], // YYYY-MM-DD format
+      date: startOfToday.toISOString().split("T")[0], // YYYY-MM-DD format
     };
   } catch (error) {
     console.error("Error fetching today's analytics:", error);
@@ -607,7 +644,7 @@ async function getTodayAnalytics() {
       orders: 0,
       avgOrderValue: 0,
       interactions: 0,
-      date: new Date().toISOString().split('T')[0],
+      date: new Date().toISOString().split("T")[0],
     };
   }
 }
@@ -644,17 +681,20 @@ async function getPaymentAnalytics(startDate: Date, endDate: Date) {
     console.log("Total successful payments:", payments.length);
 
     // Calculate top customers by total spent
-    const customerSpending = new Map<string, {
-      userId: string;
-      name: string;
-      email: string;
-      imageUrl?: string;
-      totalSpent: number;
-      orderCount: number;
-      avgOrderValue: number;
-    }>();
+    const customerSpending = new Map<
+      string,
+      {
+        userId: string;
+        name: string;
+        email: string;
+        imageUrl?: string;
+        totalSpent: number;
+        orderCount: number;
+        avgOrderValue: number;
+      }
+    >();
 
-    payments.forEach(payment => {
+    payments.forEach((payment) => {
       const key = payment.userId;
       const existing = customerSpending.get(key);
       if (existing) {
@@ -679,14 +719,17 @@ async function getPaymentAnalytics(startDate: Date, endDate: Date) {
       .slice(0, 10);
 
     // Calculate most purchased products
-    const productPurchases = new Map<number, {
-      productId: number;
-      purchaseCount: number;
-      totalRevenue: number;
-    }>();
+    const productPurchases = new Map<
+      number,
+      {
+        productId: number;
+        purchaseCount: number;
+        totalRevenue: number;
+      }
+    >();
 
-    payments.forEach(payment => {
-      payment.productIds.forEach(productId => {
+    payments.forEach((payment) => {
+      payment.productIds.forEach((productId) => {
         const existing = productPurchases.get(productId);
         const revenuePerProduct = payment.amount / payment.productIds.length;
         if (existing) {
@@ -706,7 +749,7 @@ async function getPaymentAnalytics(startDate: Date, endDate: Date) {
     const topProductIds = Array.from(productPurchases.values())
       .sort((a, b) => b.purchaseCount - a.purchaseCount)
       .slice(0, 10)
-      .map(p => p.productId);
+      .map((p) => p.productId);
 
     let topProducts: any[] = [];
     if (topProductIds.length > 0) {
@@ -715,20 +758,25 @@ async function getPaymentAnalytics(startDate: Date, endDate: Date) {
           index: INDEX_NAME,
           query: {
             terms: {
-              "product_id": topProductIds
-            }
+              product_id: topProductIds,
+            },
           },
           size: 10,
         });
 
-        const productDetails = productSearchResponse.hits.hits.map((hit: any) => hit._source);
-        
-        topProducts = topProductIds.map(productId => {
-          const productDetail = productDetails.find((p: any) => p.product_id === productId);
+        const productDetails = productSearchResponse.hits.hits.map(
+          (hit: any) => hit._source
+        );
+
+        topProducts = topProductIds.map((productId) => {
+          const productDetail = productDetails.find(
+            (p: any) => p.product_id === productId
+          );
           const purchaseData = productPurchases.get(productId)!;
           return {
             productId,
-            productName: productDetail?.product_display_name || `Product ${productId}`,
+            productName:
+              productDetail?.product_display_name || `Product ${productId}`,
             category: productDetail?.master_category || "Unknown",
             subCategory: productDetail?.sub_category || "Unknown",
             purchaseCount: purchaseData.purchaseCount,
@@ -737,8 +785,11 @@ async function getPaymentAnalytics(startDate: Date, endDate: Date) {
           };
         });
       } catch (elasticError) {
-        console.error("Error fetching product details from Elasticsearch:", elasticError);
-        topProducts = topProductIds.map(productId => {
+        console.error(
+          "Error fetching product details from Elasticsearch:",
+          elasticError
+        );
+        topProducts = topProductIds.map((productId) => {
           const purchaseData = productPurchases.get(productId)!;
           return {
             productId,
@@ -754,15 +805,18 @@ async function getPaymentAnalytics(startDate: Date, endDate: Date) {
     }
 
     // Calculate revenue trends by day
-    const revenueTrends = new Map<string, {
-      date: string;
-      revenue: number;
-      orderCount: number;
-      customerCount: number;
-    }>();
+    const revenueTrends = new Map<
+      string,
+      {
+        date: string;
+        revenue: number;
+        orderCount: number;
+        customerCount: number;
+      }
+    >();
 
-    payments.forEach(payment => {
-      const dateKey = payment.createdAt.toISOString().split('T')[0];
+    payments.forEach((payment) => {
+      const dateKey = payment.createdAt.toISOString().split("T")[0];
       const existing = revenueTrends.get(dateKey);
       if (existing) {
         existing.revenue += payment.amount;
@@ -777,30 +831,36 @@ async function getPaymentAnalytics(startDate: Date, endDate: Date) {
       }
     });
 
-    const dailyRevenueTrends = Array.from(revenueTrends.values())
-      .sort((a, b) => a.date.localeCompare(b.date));
+    const dailyRevenueTrends = Array.from(revenueTrends.values()).sort((a, b) =>
+      a.date.localeCompare(b.date)
+    );
 
     // Calculate payment method distribution
     const paymentMethods = new Map<string, number>();
-    payments.forEach(payment => {
+    payments.forEach((payment) => {
       const method = "Card"; // Since we're using Stripe, most will be card payments
       paymentMethods.set(method, (paymentMethods.get(method) || 0) + 1);
     });
 
-    const paymentMethodDistribution = Array.from(paymentMethods.entries()).map(([method, count]) => ({
-      method,
-      count,
-      percentage: (count / payments.length) * 100,
-    }));
+    const paymentMethodDistribution = Array.from(paymentMethods.entries()).map(
+      ([method, count]) => ({
+        method,
+        count,
+        percentage: (count / payments.length) * 100,
+      })
+    );
 
     // Calculate geographic distribution from billing addresses
-    const geographicDistribution = new Map<string, {
-      country: string;
-      orderCount: number;
-      revenue: number;
-    }>();
+    const geographicDistribution = new Map<
+      string,
+      {
+        country: string;
+        orderCount: number;
+        revenue: number;
+      }
+    >();
 
-    payments.forEach(payment => {
+    payments.forEach((payment) => {
       const billingAddress = payment.billingAddress as any;
       const country = billingAddress?.country || "Unknown";
       const existing = geographicDistribution.get(country);
@@ -821,11 +881,15 @@ async function getPaymentAnalytics(startDate: Date, endDate: Date) {
       .slice(0, 10);
 
     // Calculate summary metrics
-    const totalRevenue = payments.reduce((sum, payment) => sum + payment.amount, 0);
+    const totalRevenue = payments.reduce(
+      (sum, payment) => sum + payment.amount,
+      0
+    );
     const totalOrders = payments.length;
-    const uniqueCustomers = new Set(payments.map(p => p.userId)).size;
+    const uniqueCustomers = new Set(payments.map((p) => p.userId)).size;
     const avgOrderValue = totalOrders > 0 ? totalRevenue / totalOrders : 0;
-    const avgCustomerValue = uniqueCustomers > 0 ? totalRevenue / uniqueCustomers : 0;
+    const avgCustomerValue =
+      uniqueCustomers > 0 ? totalRevenue / uniqueCustomers : 0;
 
     // Calculate conversion metrics
     const totalUsers = await prisma.user.count({
@@ -838,7 +902,8 @@ async function getPaymentAnalytics(startDate: Date, endDate: Date) {
       },
     });
 
-    const conversionRate = totalUsers > 0 ? (uniqueCustomers / totalUsers) * 100 : 0;
+    const conversionRate =
+      totalUsers > 0 ? (uniqueCustomers / totalUsers) * 100 : 0;
 
     const result = {
       summary: {
@@ -854,7 +919,7 @@ async function getPaymentAnalytics(startDate: Date, endDate: Date) {
       dailyRevenueTrends,
       paymentMethodDistribution,
       geographicDistribution: topCountries,
-      recentTransactions: payments.slice(0, 10).map(payment => ({
+      recentTransactions: payments.slice(0, 10).map((payment) => ({
         id: payment.id,
         amount: payment.amount,
         currency: payment.currency,

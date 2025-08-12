@@ -128,6 +128,11 @@ export async function GET(request: NextRequest) {
 // PUT - Update user role or status
 export async function PUT(request: NextRequest) {
   try {
+    const user = await getCurrentUser({ allData: true });
+
+    if (!canAccessAdminPage(user.role as Role)) {
+      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+    }
     const body = await request.json();
     const { userId, role, action } = body;
 
