@@ -4,6 +4,16 @@ import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { z } from "zod";
+import {
+  GenderEnum,
+  SeasonEnum,
+  UsageEnum,
+  productSchema,
+  type Gender,
+  type Season,
+  type Usage,
+} from "@/lib/validations";
 import {
   Select,
   SelectContent,
@@ -41,20 +51,7 @@ import { TableSkeleton } from "@/components/ui/loading";
 import { UploadButton } from "@/utils/uploadthing";
 import "@uploadthing/react/styles.css";
 
-interface ProductFormData {
-  id?: number;
-  price: number;
-  articleType: string;
-  baseColour: string;
-  gender: string;
-  image: string;
-  masterCategory: string;
-  productDisplayName: string;
-  season: string;
-  subCategory: string;
-  usage: string;
-  year: string;
-}
+// ProductFormData interface is now defined using Zod schema above
 
 const CATEGORIES = [
   "Apparel",
@@ -193,9 +190,12 @@ const ARTICLE_TYPES = [
   "Skin Care",
 ];
 
-const GENDERS = ["Men", "Women", "Boys", "Girls", "Unisex"];
-const SEASONS = ["Summer", "Winter", "Spring", "Fall"];
-const USAGE = ["Casual", "Formal", "Sports", "Ethnic", "Party"];
+// Arrays for UI components (derived from enums)
+const GENDERS = GenderEnum.options;
+const SEASONS = SeasonEnum.options;
+const USAGE = UsageEnum.options;
+
+type ProductFormData = z.infer<typeof productSchema> & { id?: number };
 
 export default function ProductsManagement() {
   const [products, setProducts] = useState<ProductsType[]>([]);
@@ -206,17 +206,20 @@ export default function ProductsManagement() {
     null
   );
   const [imagePreview, setImagePreview] = useState<string>("");
+  const [validationErrors, setValidationErrors] = useState<
+    Record<string, string>
+  >({});
   const [formData, setFormData] = useState<ProductFormData>({
     price: 0,
     articleType: "",
     baseColour: "",
-    gender: "",
+    gender: "Men",
     image: "",
     masterCategory: "",
     productDisplayName: "",
-    season: "",
+    season: "Fall",
     subCategory: "",
-    usage: "",
+    usage: "Casual",
     year: new Date().getFullYear().toString(),
   });
 
@@ -290,12 +293,14 @@ export default function ProductsManagement() {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    setValidationErrors({});
 
     try {
-      const productData = {
+      // Validate form data with Zod
+      const validatedData = productSchema.parse({
         ...formData,
         price: Number(formData.price),
-      };
+      });
 
       const url = editingProduct
         ? `/api/admin/products/${editingProduct.id}`
@@ -308,7 +313,7 @@ export default function ProductsManagement() {
         headers: {
           "Content-Type": "application/json",
         },
-        body: JSON.stringify(productData),
+        body: JSON.stringify(validatedData),
       });
 
       if (response.ok) {
@@ -324,8 +329,20 @@ export default function ProductsManagement() {
         throw new Error("Failed to save product");
       }
     } catch (error) {
-      console.error("Error saving product:", error);
-      toast.error("Failed to save product");
+      if (error instanceof z.ZodError) {
+        // Handle validation errors
+        const errors: Record<string, string> = {};
+        error.errors.forEach((err) => {
+          if (err.path.length > 0) {
+            errors[err.path[0] as string] = err.message;
+          }
+        });
+        setValidationErrors(errors);
+        toast.error("Please fix the validation errors");
+      } else {
+        console.error("Error saving product:", error);
+        toast.error("Failed to save product");
+      }
     }
   };
 
@@ -336,13 +353,13 @@ export default function ProductsManagement() {
       price: product.price,
       articleType: product.articleType,
       baseColour: product.baseColour,
-      gender: product.gender,
+      gender: product.gender as Gender,
       image: product.image,
       masterCategory: product.masterCategory,
       productDisplayName: product.productDisplayName,
-      season: product.season,
+      season: product.season as Season,
       subCategory: product.subCategory,
-      usage: product.usage,
+      usage: product.usage as Usage,
       year: product.year,
     });
     setImagePreview(product.image);
@@ -376,17 +393,18 @@ export default function ProductsManagement() {
       price: 0,
       articleType: "",
       baseColour: "",
-      gender: "",
+      gender: "Men",
       image: "",
       masterCategory: "",
       productDisplayName: "",
-      season: "",
+      season: "Fall",
       subCategory: "",
-      usage: "",
+      usage: "Casual",
       year: new Date().getFullYear().toString(),
     });
     setEditingProduct(null);
     setImagePreview("");
+    setValidationErrors({});
   };
 
   const filteredProducts = products.filter(
@@ -443,9 +461,18 @@ export default function ProductsManagement() {
                           productDisplayName: e.target.value,
                         })
                       }
-                      className="w-full"
+                      className={`w-full ${
+                        validationErrors.productDisplayName
+                          ? "border-red-500 focus:border-red-500"
+                          : ""
+                      }`}
                       required
                     />
+                    {validationErrors.productDisplayName && (
+                      <p className="text-sm text-red-500">
+                        {validationErrors.productDisplayName}
+                      </p>
+                    )}
                   </div>
                   <div className="space-y-2">
                     <Label htmlFor="price" className="text-sm font-medium">
@@ -462,9 +489,18 @@ export default function ProductsManagement() {
                           price: Number(e.target.value),
                         })
                       }
-                      className="w-full"
+                      className={`w-full ${
+                        validationErrors.price
+                          ? "border-red-500 focus:border-red-500"
+                          : ""
+                      }`}
                       required
                     />
+                    {validationErrors.price && (
+                      <p className="text-sm text-red-500">
+                        {validationErrors.price}
+                      </p>
+                    )}
                   </div>
                 </div>
 
@@ -483,7 +519,11 @@ export default function ProductsManagement() {
                           variant="outline"
                           role="combobox"
                           aria-expanded={openCategory}
-                          className="w-full justify-between"
+                          className={`w-full justify-between ${
+                            validationErrors.masterCategory
+                              ? "border-red-500 focus:border-red-500"
+                              : ""
+                          }`}
                         >
                           {formData.masterCategory ||
                             "Select or type category..."}
@@ -537,6 +577,11 @@ export default function ProductsManagement() {
                         </Command>
                       </PopoverContent>
                     </Popover>
+                    {validationErrors.masterCategory && (
+                      <p className="text-sm text-red-500">
+                        {validationErrors.masterCategory}
+                      </p>
+                    )}
                   </div>
                   <div className="space-y-2">
                     <Label
@@ -554,7 +599,11 @@ export default function ProductsManagement() {
                           variant="outline"
                           role="combobox"
                           aria-expanded={openSubCategory}
-                          className="w-full justify-between"
+                          className={`w-full justify-between ${
+                            validationErrors.subCategory
+                              ? "border-red-500 focus:border-red-500"
+                              : ""
+                          }`}
                         >
                           {formData.subCategory ||
                             "Select or type subcategory..."}
@@ -607,6 +656,11 @@ export default function ProductsManagement() {
                         </Command>
                       </PopoverContent>
                     </Popover>
+                    {validationErrors.subCategory && (
+                      <p className="text-sm text-red-500">
+                        {validationErrors.subCategory}
+                      </p>
+                    )}
                   </div>
                 </div>
 
@@ -618,11 +672,17 @@ export default function ProductsManagement() {
                     </Label>
                     <Select
                       value={formData.gender}
-                      onValueChange={(value) =>
+                      onValueChange={(value: Gender) =>
                         setFormData({ ...formData, gender: value })
                       }
                     >
-                      <SelectTrigger className="w-full">
+                      <SelectTrigger
+                        className={`w-full ${
+                          validationErrors.gender
+                            ? "border-red-500 focus:border-red-500"
+                            : ""
+                        }`}
+                      >
                         <SelectValue placeholder="Select gender" />
                       </SelectTrigger>
                       <SelectContent>
@@ -633,6 +693,11 @@ export default function ProductsManagement() {
                         ))}
                       </SelectContent>
                     </Select>
+                    {validationErrors.gender && (
+                      <p className="text-sm text-red-500">
+                        {validationErrors.gender}
+                      </p>
+                    )}
                   </div>
                   <div className="space-y-2">
                     <Label
@@ -650,7 +715,11 @@ export default function ProductsManagement() {
                           variant="outline"
                           role="combobox"
                           aria-expanded={openArticleType}
-                          className="w-full justify-between"
+                          className={`w-full justify-between ${
+                            validationErrors.articleType
+                              ? "border-red-500 focus:border-red-500"
+                              : ""
+                          }`}
                         >
                           {formData.articleType ||
                             "Select or type article type..."}
@@ -703,6 +772,11 @@ export default function ProductsManagement() {
                         </Command>
                       </PopoverContent>
                     </Popover>
+                    {validationErrors.articleType && (
+                      <p className="text-sm text-red-500">
+                        {validationErrors.articleType}
+                      </p>
+                    )}
                   </div>
                 </div>
 
@@ -718,9 +792,18 @@ export default function ProductsManagement() {
                       onChange={(e) =>
                         setFormData({ ...formData, baseColour: e.target.value })
                       }
-                      className="w-full"
+                      className={`w-full ${
+                        validationErrors.baseColour
+                          ? "border-red-500 focus:border-red-500"
+                          : ""
+                      }`}
                       required
                     />
+                    {validationErrors.baseColour && (
+                      <p className="text-sm text-red-500">
+                        {validationErrors.baseColour}
+                      </p>
+                    )}
                   </div>
                   <div className="space-y-2">
                     <Label htmlFor="season" className="text-sm font-medium">
@@ -728,11 +811,17 @@ export default function ProductsManagement() {
                     </Label>
                     <Select
                       value={formData.season}
-                      onValueChange={(value) =>
+                      onValueChange={(value: Season) =>
                         setFormData({ ...formData, season: value })
                       }
                     >
-                      <SelectTrigger className="w-full">
+                      <SelectTrigger
+                        className={`w-full ${
+                          validationErrors.season
+                            ? "border-red-500 focus:border-red-500"
+                            : ""
+                        }`}
+                      >
                         <SelectValue placeholder="Select season" />
                       </SelectTrigger>
                       <SelectContent>
@@ -743,6 +832,11 @@ export default function ProductsManagement() {
                         ))}
                       </SelectContent>
                     </Select>
+                    {validationErrors.season && (
+                      <p className="text-sm text-red-500">
+                        {validationErrors.season}
+                      </p>
+                    )}
                   </div>
                   <div className="space-y-2">
                     <Label htmlFor="usage" className="text-sm font-medium">
@@ -750,11 +844,17 @@ export default function ProductsManagement() {
                     </Label>
                     <Select
                       value={formData.usage}
-                      onValueChange={(value) =>
+                      onValueChange={(value: Usage) =>
                         setFormData({ ...formData, usage: value })
                       }
                     >
-                      <SelectTrigger className="w-full">
+                      <SelectTrigger
+                        className={`w-full ${
+                          validationErrors.usage
+                            ? "border-red-500 focus:border-red-500"
+                            : ""
+                        }`}
+                      >
                         <SelectValue placeholder="Select usage" />
                       </SelectTrigger>
                       <SelectContent>
@@ -765,6 +865,11 @@ export default function ProductsManagement() {
                         ))}
                       </SelectContent>
                     </Select>
+                    {validationErrors.usage && (
+                      <p className="text-sm text-red-500">
+                        {validationErrors.usage}
+                      </p>
+                    )}
                   </div>
                 </div>
 
@@ -779,15 +884,30 @@ export default function ProductsManagement() {
                     onChange={(e) =>
                       setFormData({ ...formData, year: e.target.value })
                     }
-                    className="w-full"
+                    className={`w-full ${
+                      validationErrors.year
+                        ? "border-red-500 focus:border-red-500"
+                        : ""
+                    }`}
                     required
                   />
+                  {validationErrors.year && (
+                    <p className="text-sm text-red-500">
+                      {validationErrors.year}
+                    </p>
+                  )}
                 </div>
 
                 {/* Image Upload */}
                 <div className="space-y-2">
                   <Label className="text-sm font-medium">Product Image</Label>
-                  <div className="flex flex-col items-center space-y-4 p-4 border-2 border-dashed border-gray-300 rounded-lg">
+                  <div
+                    className={`flex flex-col items-center space-y-4 p-4 border-2 border-dashed rounded-lg ${
+                      validationErrors.image
+                        ? "border-red-500"
+                        : "border-gray-300"
+                    }`}
+                  >
                     <UploadButton
                       endpoint="imageUploader"
                       onClientUploadComplete={(res) => {
@@ -813,6 +933,11 @@ export default function ProductsManagement() {
                       </div>
                     )}
                   </div>
+                  {validationErrors.image && (
+                    <p className="text-sm text-red-500">
+                      {validationErrors.image}
+                    </p>
+                  )}
                 </div>
 
                 {/* Form Actions */}

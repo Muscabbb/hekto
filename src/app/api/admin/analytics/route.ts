@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-unused-vars */
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import { NextRequest, NextResponse } from "next/server";
 // import { getCurrentUser } from "@/services/clerk";
@@ -53,7 +54,8 @@ export async function GET(request: NextRequest) {
     // Fetch today's analytics
     const todayAnalytics = await getTodayAnalytics();
 
-
+    // Fetch comprehensive payment analytics
+    const paymentAnalytics = await getPaymentAnalytics(startDate, now);
 
     // Fetch payment status distribution
     const paymentStatus = await getPaymentStatusData(startDate, now);
@@ -107,6 +109,8 @@ export async function GET(request: NextRequest) {
       seasonDistribution,
       genderDistribution,
       userActivity,
+      // Add comprehensive payment analytics
+      paymentAnalytics,
       // Add summary metrics
       summary: {
         totalRevenue,
@@ -604,6 +608,285 @@ async function getTodayAnalytics() {
       avgOrderValue: 0,
       interactions: 0,
       date: new Date().toISOString().split('T')[0],
+    };
+  }
+}
+
+async function getPaymentAnalytics(startDate: Date, endDate: Date) {
+  try {
+    console.log("=== PAYMENT ANALYTICS DEBUG ===");
+    console.log("Date range:", { startDate, endDate });
+
+    // Get all successful payments in the date range
+    const payments = await prisma.payment.findMany({
+      where: {
+        createdAt: {
+          gte: startDate,
+          lte: endDate,
+        },
+        status: "COMPLETED",
+      },
+      include: {
+        user: {
+          select: {
+            id: true,
+            name: true,
+            email: true,
+            imageUrl: true,
+          },
+        },
+      },
+      orderBy: {
+        createdAt: "desc",
+      },
+    });
+
+    console.log("Total successful payments:", payments.length);
+
+    // Calculate top customers by total spent
+    const customerSpending = new Map<string, {
+      userId: string;
+      name: string;
+      email: string;
+      imageUrl?: string;
+      totalSpent: number;
+      orderCount: number;
+      avgOrderValue: number;
+    }>();
+
+    payments.forEach(payment => {
+      const key = payment.userId;
+      const existing = customerSpending.get(key);
+      if (existing) {
+        existing.totalSpent += payment.amount;
+        existing.orderCount += 1;
+        existing.avgOrderValue = existing.totalSpent / existing.orderCount;
+      } else {
+        customerSpending.set(key, {
+          userId: payment.userId,
+          name: payment.user.name || "Unknown",
+          email: payment.user.email,
+          imageUrl: payment.user.imageUrl || undefined,
+          totalSpent: payment.amount,
+          orderCount: 1,
+          avgOrderValue: payment.amount,
+        });
+      }
+    });
+
+    const topCustomers = Array.from(customerSpending.values())
+      .sort((a, b) => b.totalSpent - a.totalSpent)
+      .slice(0, 10);
+
+    // Calculate most purchased products
+    const productPurchases = new Map<number, {
+      productId: number;
+      purchaseCount: number;
+      totalRevenue: number;
+    }>();
+
+    payments.forEach(payment => {
+      payment.productIds.forEach(productId => {
+        const existing = productPurchases.get(productId);
+        const revenuePerProduct = payment.amount / payment.productIds.length;
+        if (existing) {
+          existing.purchaseCount += 1;
+          existing.totalRevenue += revenuePerProduct;
+        } else {
+          productPurchases.set(productId, {
+            productId,
+            purchaseCount: 1,
+            totalRevenue: revenuePerProduct,
+          });
+        }
+      });
+    });
+
+    // Get product details from Elasticsearch
+    const topProductIds = Array.from(productPurchases.values())
+      .sort((a, b) => b.purchaseCount - a.purchaseCount)
+      .slice(0, 10)
+      .map(p => p.productId);
+
+    let topProducts: any[] = [];
+    if (topProductIds.length > 0) {
+      try {
+        const productSearchResponse = await client.search({
+          index: INDEX_NAME,
+          query: {
+            terms: {
+              "product_id": topProductIds
+            }
+          },
+          size: 10,
+        });
+
+        const productDetails = productSearchResponse.hits.hits.map((hit: any) => hit._source);
+        
+        topProducts = topProductIds.map(productId => {
+          const productDetail = productDetails.find((p: any) => p.product_id === productId);
+          const purchaseData = productPurchases.get(productId)!;
+          return {
+            productId,
+            productName: productDetail?.product_display_name || `Product ${productId}`,
+            category: productDetail?.master_category || "Unknown",
+            subCategory: productDetail?.sub_category || "Unknown",
+            purchaseCount: purchaseData.purchaseCount,
+            totalRevenue: purchaseData.totalRevenue,
+            avgPrice: purchaseData.totalRevenue / purchaseData.purchaseCount,
+          };
+        });
+      } catch (elasticError) {
+        console.error("Error fetching product details from Elasticsearch:", elasticError);
+        topProducts = topProductIds.map(productId => {
+          const purchaseData = productPurchases.get(productId)!;
+          return {
+            productId,
+            productName: `Product ${productId}`,
+            category: "Unknown",
+            subCategory: "Unknown",
+            purchaseCount: purchaseData.purchaseCount,
+            totalRevenue: purchaseData.totalRevenue,
+            avgPrice: purchaseData.totalRevenue / purchaseData.purchaseCount,
+          };
+        });
+      }
+    }
+
+    // Calculate revenue trends by day
+    const revenueTrends = new Map<string, {
+      date: string;
+      revenue: number;
+      orderCount: number;
+      customerCount: number;
+    }>();
+
+    payments.forEach(payment => {
+      const dateKey = payment.createdAt.toISOString().split('T')[0];
+      const existing = revenueTrends.get(dateKey);
+      if (existing) {
+        existing.revenue += payment.amount;
+        existing.orderCount += 1;
+      } else {
+        revenueTrends.set(dateKey, {
+          date: dateKey,
+          revenue: payment.amount,
+          orderCount: 1,
+          customerCount: 1,
+        });
+      }
+    });
+
+    const dailyRevenueTrends = Array.from(revenueTrends.values())
+      .sort((a, b) => a.date.localeCompare(b.date));
+
+    // Calculate payment method distribution
+    const paymentMethods = new Map<string, number>();
+    payments.forEach(payment => {
+      const method = "Card"; // Since we're using Stripe, most will be card payments
+      paymentMethods.set(method, (paymentMethods.get(method) || 0) + 1);
+    });
+
+    const paymentMethodDistribution = Array.from(paymentMethods.entries()).map(([method, count]) => ({
+      method,
+      count,
+      percentage: (count / payments.length) * 100,
+    }));
+
+    // Calculate geographic distribution from billing addresses
+    const geographicDistribution = new Map<string, {
+      country: string;
+      orderCount: number;
+      revenue: number;
+    }>();
+
+    payments.forEach(payment => {
+      const billingAddress = payment.billingAddress as any;
+      const country = billingAddress?.country || "Unknown";
+      const existing = geographicDistribution.get(country);
+      if (existing) {
+        existing.orderCount += 1;
+        existing.revenue += payment.amount;
+      } else {
+        geographicDistribution.set(country, {
+          country,
+          orderCount: 1,
+          revenue: payment.amount,
+        });
+      }
+    });
+
+    const topCountries = Array.from(geographicDistribution.values())
+      .sort((a, b) => b.revenue - a.revenue)
+      .slice(0, 10);
+
+    // Calculate summary metrics
+    const totalRevenue = payments.reduce((sum, payment) => sum + payment.amount, 0);
+    const totalOrders = payments.length;
+    const uniqueCustomers = new Set(payments.map(p => p.userId)).size;
+    const avgOrderValue = totalOrders > 0 ? totalRevenue / totalOrders : 0;
+    const avgCustomerValue = uniqueCustomers > 0 ? totalRevenue / uniqueCustomers : 0;
+
+    // Calculate conversion metrics
+    const totalUsers = await prisma.user.count({
+      where: {
+        createdAt: {
+          gte: startDate,
+          lte: endDate,
+        },
+        deletedAt: null,
+      },
+    });
+
+    const conversionRate = totalUsers > 0 ? (uniqueCustomers / totalUsers) * 100 : 0;
+
+    const result = {
+      summary: {
+        totalRevenue,
+        totalOrders,
+        uniqueCustomers,
+        avgOrderValue,
+        avgCustomerValue,
+        conversionRate,
+      },
+      topCustomers,
+      topProducts,
+      dailyRevenueTrends,
+      paymentMethodDistribution,
+      geographicDistribution: topCountries,
+      recentTransactions: payments.slice(0, 10).map(payment => ({
+        id: payment.id,
+        amount: payment.amount,
+        currency: payment.currency,
+        customerName: payment.customerName || payment.user.name,
+        customerEmail: payment.customerEmail || payment.user.email,
+        productCount: payment.productIds.length,
+        createdAt: payment.createdAt,
+        status: payment.status,
+      })),
+    };
+
+    console.log("Payment analytics summary:", result.summary);
+    console.log("=== PAYMENT ANALYTICS DEBUG END ===");
+
+    return result;
+  } catch (error) {
+    console.error("Error fetching payment analytics:", error);
+    return {
+      summary: {
+        totalRevenue: 0,
+        totalOrders: 0,
+        uniqueCustomers: 0,
+        avgOrderValue: 0,
+        avgCustomerValue: 0,
+        conversionRate: 0,
+      },
+      topCustomers: [],
+      topProducts: [],
+      dailyRevenueTrends: [],
+      paymentMethodDistribution: [],
+      geographicDistribution: [],
+      recentTransactions: [],
     };
   }
 }
