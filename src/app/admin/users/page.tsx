@@ -51,6 +51,7 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { TableSkeleton } from "@/components/ui/loading";
+import { redirect } from "next/navigation";
 
 interface User {
   id: string;
@@ -112,7 +113,8 @@ export default function UsersManagement() {
         setUsers(data.users || []);
         setPagination(data.pagination);
       } else {
-        toast.error("Failed to fetch users");
+        toast.error("Your not authorized to access this page");
+        redirect("/");
       }
     } catch (error) {
       console.error("Error fetching users:", error);
