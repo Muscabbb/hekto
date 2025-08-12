@@ -38,6 +38,7 @@ import {
   UserX,
   UserCheck,
   Eye,
+  User,
 } from "lucide-react";
 import { toast } from "sonner";
 import Image from "next/image";
@@ -301,8 +302,8 @@ export default function UsersManagement() {
                                   className="rounded-full object-cover"
                                 />
                               ) : (
-                                <div className="h-10 w-10 rounded-full bg-gradient-to-br from-blue-500 to-purple-600 flex items-center justify-center text-white font-semibold text-sm">
-                                  {user.name.charAt(0).toUpperCase()}
+                                <div className="h-10 w-10 rounded-full bg-gray-100 flex items-center justify-center">
+                                  <User className="h-6 w-6 text-gray-400" />
                                 </div>
                               )}
                             </div>
