@@ -1,12 +1,20 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
-import { syncClerkUserMetadata } from "@/services/clerk";
+import { getCurrentUser, syncClerkUserMetadata } from "@/services/clerk";
 import { clerkClient } from "@clerk/nextjs/server";
+import { canAccessAdminPage } from "@/permissions/general";
+import { Role } from "@prisma/client";
 
 // GET - Fetch all users with pagination and search
 export async function GET(request: NextRequest) {
   try {
+    const user = await getCurrentUser({ allData: true });
+
+    if (!canAccessAdminPage(user.role as Role)) {
+      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+    }
+
     const { searchParams } = new URL(request.url);
     const page = parseInt(searchParams.get("page") || "1");
     const limit = parseInt(searchParams.get("limit") || "10");
@@ -38,7 +46,7 @@ export async function GET(request: NextRequest) {
 
     // Get users with pagination - handle null createdAt gracefully
     let users, totalCount;
-    
+
     try {
       [users, totalCount] = await Promise.all([
         prisma.user.findMany({
@@ -67,28 +75,31 @@ export async function GET(request: NextRequest) {
       ]);
     } catch (error) {
       // Fallback: order by id only if createdAt has issues
-      console.warn("CreatedAt ordering failed, falling back to id ordering:", error);
+      console.warn(
+        "CreatedAt ordering failed, falling back to id ordering:",
+        error
+      );
       [users, totalCount] = await Promise.all([
         prisma.user.findMany({
-            where,
-            skip,
-            take: limit,
-            orderBy: { id: "desc" },
-            select: {
-              id: true,
-              email: true,
-              name: true,
-              role: true,
-              imageUrl: true,
-              deletedAt: true,
-              _count: {
-                select: {
-                  interactions: true,
-                  payments: true,
-                },
+          where,
+          skip,
+          take: limit,
+          orderBy: { id: "desc" },
+          select: {
+            id: true,
+            email: true,
+            name: true,
+            role: true,
+            imageUrl: true,
+            deletedAt: true,
+            _count: {
+              select: {
+                interactions: true,
+                payments: true,
               },
             },
-          }),
+          },
+        }),
         prisma.user.count({ where }),
       ]);
     }
@@ -164,7 +175,7 @@ export async function PUT(request: NextRequest) {
         await client.users.unbanUser(updatedUser.clerkUserId);
       }
     } catch (error) {
-      console.error('Failed to sync user data with Clerk:', error);
+      console.error("Failed to sync user data with Clerk:", error);
       // Don't fail the request if Clerk sync fails, but log the error
     }
 
