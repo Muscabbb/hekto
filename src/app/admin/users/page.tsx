@@ -114,7 +114,7 @@ export default function UsersManagement() {
         setUsers(data.users || []);
         setPagination(data.pagination);
       } else {
-        toast.error("Your not authorized to access this page");
+        toast.error("Your not authorized to access this page!");
         redirect("/");
       }
     } catch (error) {
