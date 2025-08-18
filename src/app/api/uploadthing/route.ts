@@ -6,6 +6,7 @@ import { ourFileRouter } from "./core";
 export const { GET, POST } = createRouteHandler({
   router: ourFileRouter,
   config: {
-    callbackUrl: "https://hekto-ruddy.vercel.app/api/ulploadthing",
+    // callbackUrl: "http://localhost:3000/api/uploadthing",
+    callbackUrl: "https://hekto-ruddy.vercel.app/api/uploadthing",
   },
 });

@@ -53,142 +53,7 @@ import "@uploadthing/react/styles.css";
 
 // ProductFormData interface is now defined using Zod schema above
 
-const CATEGORIES = [
-  "Apparel",
-  "Accessories",
-  "Footwear",
-  "Personal Care",
-  "Free Items",
-  "Sporting Goods",
-  "Home",
-];
-
-const SUBCATEGORIES = [
-  "Topwear",
-  "Bottomwear",
-  "Watches",
-  "Socks",
-  "Shoes",
-  "Belts",
-  "Wallets",
-  "Sunglasses",
-  "Bags",
-  "Ties",
-  "Accessory Gift Set",
-  "Fragrance",
-  "Jewellery",
-  "Lips",
-  "Saree",
-  "Lounge Pants",
-  "Sandals",
-  "Shrug",
-  "Loungewear and Nightwear",
-  "Wallets",
-  "Apparel Set",
-  "Headwear",
-  "Innerwear Vests",
-  "Skirts",
-  "Dress",
-  "Leggings",
-  "Dupatta",
-  "Capris",
-  "Lip Gloss",
-  "Bath and Body",
-  "Makeup",
-  "Free Gifts",
-  "Nail",
-  "Hair",
-  "Skin",
-  "Skin Care",
-  "Eyes",
-  "Beauty Accessories",
-  "Water Bottle",
-  "Laptop Bag",
-  "Sports Sandals",
-  "Flip Flops",
-  "Clothing Set",
-  "Robe",
-  "Sweaters",
-  "Waistcoat",
-  "Kurtas",
-  "Kurta Sets",
-  "Tshirts",
-  "Casual Shoes",
-  "Sports Shoes",
-  "Formal Shoes",
-  "Flats",
-  "Heels",
-  "Flip Flops",
-];
-
-const ARTICLE_TYPES = [
-  "Shirts",
-  "Jeans",
-  "Watches",
-  "Sports Shoes",
-  "Tshirts",
-  "Socks",
-  "Casual Shoes",
-  "Belts",
-  "Flip Flops",
-  "Formal Shoes",
-  "Backpacks",
-  "Tops",
-  "Handbags",
-  "Kurtas",
-  "Sunglasses",
-  "Waistcoat",
-  "Wallets",
-  "Lounge Pants",
-  "Sandals",
-  "Shorts",
-  "Trousers",
-  "Kurta Sets",
-  "Heels",
-  "Laptop Bag",
-  "Sports Sandals",
-  "Flats",
-  "Ring",
-  "Tracksuits",
-  "Swimwear",
-  "Shoe Accessories",
-  "Fragrance",
-  "Sweaters",
-  "Jackets",
-  "Ties",
-  "Accessory Gift Set",
-  "Caps",
-  "Nightdress",
-  "Juttis",
-  "Clutches",
-  "Shrug",
-  "Ballerinas",
-  "Dupatta",
-  "Capris",
-  "Lip Gloss",
-  "Bath and Body",
-  "Makeup",
-  "Saree",
-  "Jewellery",
-  "Nail",
-  "Hair",
-  "Skin",
-  "Eyes",
-  "Beauty Accessories",
-  "Water Bottle",
-  "Clothing Set",
-  "Robe",
-  "Leggings",
-  "Skirts",
-  "Dress",
-  "Innerwear Vests",
-  "Headwear",
-  "Apparel Set",
-  "Free Gifts",
-  "Loungewear and Nightwear",
-  "Lips",
-  "Skin Care",
-];
+// Static arrays removed - categories are now fetched dynamically from the database
 
 // Arrays for UI components (derived from enums)
 const GENDERS = GenderEnum.options;
@@ -223,24 +88,39 @@ export default function ProductsManagement() {
     year: new Date().getFullYear().toString(),
   });
 
-  // State for custom categories
-  const [customCategories, setCustomCategories] = useState<string[]>([]);
-  const [customSubCategories, setCustomSubCategories] = useState<string[]>([]);
-  const [customArticleTypes, setCustomArticleTypes] = useState<string[]>([]);
+  // State for dynamic categories from database
+  const [categories, setCategories] = useState<string[]>([]);
+  const [subCategories, setSubCategories] = useState<string[]>([]);
+  const [articleTypes, setArticleTypes] = useState<string[]>([]);
+  const [categoriesLoading, setCategoriesLoading] = useState(true);
 
   // State for combobox open/close
   const [openCategory, setOpenCategory] = useState(false);
   const [openSubCategory, setOpenSubCategory] = useState(false);
   const [openArticleType, setOpenArticleType] = useState(false);
 
-  // Helper functions to get all categories (predefined + custom)
-  const getAllCategories = () => [...CATEGORIES, ...customCategories];
-  const getAllSubCategories = () => [...SUBCATEGORIES, ...customSubCategories];
-  const getAllArticleTypes = () => [...ARTICLE_TYPES, ...customArticleTypes];
-
   useEffect(() => {
     fetchProducts();
+    fetchCategories();
   }, []);
+
+  const fetchCategories = async () => {
+    try {
+      setCategoriesLoading(true);
+      const response = await fetch("/api/admin/products/categories");
+      if (response.ok) {
+        const data = await response.json();
+        setCategories(data.masterCategories || []);
+        setSubCategories(data.subCategories || []);
+        setArticleTypes(data.articleTypes || []);
+      }
+    } catch (error) {
+      console.error("Error fetching categories:", error);
+      toast.error("Failed to fetch categories");
+    } finally {
+      setCategoriesLoading(false);
+    }
+  };
 
   const fetchProducts = async () => {
     try {
@@ -260,27 +140,27 @@ export default function ProductsManagement() {
 
   // Helper functions for handling category selection and adding new ones
   const handleCategorySelect = (value: string) => {
-    if (value && !getAllCategories().includes(value)) {
-      setCustomCategories([...customCategories, value]);
-      toast.success("New category added!");
+    if (value && !categories.includes(value)) {
+      setCategories([...categories, value]);
+      toast.success("New category will be added when product is saved!");
     }
     setFormData({ ...formData, masterCategory: value });
     setOpenCategory(false);
   };
 
   const handleSubCategorySelect = (value: string) => {
-    if (value && !getAllSubCategories().includes(value)) {
-      setCustomSubCategories([...customSubCategories, value]);
-      toast.success("New subcategory added!");
+    if (value && !subCategories.includes(value)) {
+      setSubCategories([...subCategories, value]);
+      toast.success("New subcategory will be added when product is saved!");
     }
     setFormData({ ...formData, subCategory: value });
     setOpenSubCategory(false);
   };
 
   const handleArticleTypeSelect = (value: string) => {
-    if (value && !getAllArticleTypes().includes(value)) {
-      setCustomArticleTypes([...customArticleTypes, value]);
-      toast.success("New article type added!");
+    if (value && !articleTypes.includes(value)) {
+      setArticleTypes([...articleTypes, value]);
+      toast.success("New article type will be added when product is saved!");
     }
     setFormData({ ...formData, articleType: value });
     setOpenArticleType(false);
@@ -325,6 +205,7 @@ export default function ProductsManagement() {
         setIsDialogOpen(false);
         resetForm();
         fetchProducts();
+        fetchCategories(); // Refresh categories to include any new ones
       } else {
         throw new Error("Failed to save product");
       }
@@ -556,23 +437,29 @@ export default function ProductsManagement() {
                             </div>
                           </CommandEmpty>
                           <CommandGroup>
-                            {getAllCategories().map((category) => (
-                              <CommandItem
-                                key={category}
-                                value={category}
-                                onSelect={() => handleCategorySelect(category)}
-                              >
-                                <Check
-                                  className={cn(
-                                    "mr-2 h-4 w-4",
-                                    formData.masterCategory === category
-                                      ? "opacity-100"
-                                      : "opacity-0"
-                                  )}
-                                />
-                                {category}
+                            {categoriesLoading ? (
+                              <CommandItem disabled>
+                                Loading categories...
                               </CommandItem>
-                            ))}
+                            ) : (
+                              categories.map((category) => (
+                                <CommandItem
+                                  key={category}
+                                  value={category}
+                                  onSelect={() => handleCategorySelect(category)}
+                                >
+                                  <Check
+                                    className={cn(
+                                      "mr-2 h-4 w-4",
+                                      formData.masterCategory === category
+                                        ? "opacity-100"
+                                        : "opacity-0"
+                                    )}
+                                  />
+                                  {category}
+                                </CommandItem>
+                              ))
+                            )}
                           </CommandGroup>
                         </Command>
                       </PopoverContent>
@@ -633,25 +520,31 @@ export default function ProductsManagement() {
                             </div>
                           </CommandEmpty>
                           <CommandGroup>
-                            {getAllSubCategories().map((subCategory) => (
-                              <CommandItem
-                                key={subCategory}
-                                value={subCategory}
-                                onSelect={() =>
-                                  handleSubCategorySelect(subCategory)
-                                }
-                              >
-                                <Check
-                                  className={cn(
-                                    "mr-2 h-4 w-4",
-                                    formData.subCategory === subCategory
-                                      ? "opacity-100"
-                                      : "opacity-0"
-                                  )}
-                                />
-                                {subCategory}
+                            {categoriesLoading ? (
+                              <CommandItem disabled>
+                                Loading subcategories...
                               </CommandItem>
-                            ))}
+                            ) : (
+                              subCategories.map((subCategory) => (
+                                <CommandItem
+                                  key={subCategory}
+                                  value={subCategory}
+                                  onSelect={() =>
+                                    handleSubCategorySelect(subCategory)
+                                  }
+                                >
+                                  <Check
+                                    className={cn(
+                                      "mr-2 h-4 w-4",
+                                      formData.subCategory === subCategory
+                                        ? "opacity-100"
+                                        : "opacity-0"
+                                    )}
+                                  />
+                                  {subCategory}
+                                </CommandItem>
+                              ))
+                            )}
                           </CommandGroup>
                         </Command>
                       </PopoverContent>
@@ -749,25 +642,31 @@ export default function ProductsManagement() {
                             </div>
                           </CommandEmpty>
                           <CommandGroup>
-                            {getAllArticleTypes().map((articleType) => (
-                              <CommandItem
-                                key={articleType}
-                                value={articleType}
-                                onSelect={() =>
-                                  handleArticleTypeSelect(articleType)
-                                }
-                              >
-                                <Check
-                                  className={cn(
-                                    "mr-2 h-4 w-4",
-                                    formData.articleType === articleType
-                                      ? "opacity-100"
-                                      : "opacity-0"
-                                  )}
-                                />
-                                {articleType}
+                            {categoriesLoading ? (
+                              <CommandItem disabled>
+                                Loading article types...
                               </CommandItem>
-                            ))}
+                            ) : (
+                              articleTypes.map((articleType) => (
+                                <CommandItem
+                                  key={articleType}
+                                  value={articleType}
+                                  onSelect={() =>
+                                    handleArticleTypeSelect(articleType)
+                                  }
+                                >
+                                  <Check
+                                    className={cn(
+                                      "mr-2 h-4 w-4",
+                                      formData.articleType === articleType
+                                        ? "opacity-100"
+                                        : "opacity-0"
+                                    )}
+                                  />
+                                  {articleType}
+                                </CommandItem>
+                              ))
+                            )}
                           </CommandGroup>
                         </Command>
                       </PopoverContent>
